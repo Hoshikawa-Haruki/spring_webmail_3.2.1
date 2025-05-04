@@ -21,7 +21,7 @@
 
         <div id="login_form">
             <form method="POST" action="login.do?menu=<%= CommandType.LOGIN %>">
-                사용자: <input type="text" name="userid" size="20" autofocus> <br />
+                사용자: <input type="email" name="userid" size="20" autofocus> <br />
                 암&nbsp;&nbsp;&nbsp;호: <input type="password" name="passwd" size="20"> <br /> <br />
                 <input type="submit" value="로그인" name="B1">&nbsp;&nbsp;&nbsp;
                 <input type="reset" value="다시 입력" name="B2">

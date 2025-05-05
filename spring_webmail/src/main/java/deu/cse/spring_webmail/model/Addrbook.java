@@ -17,6 +17,8 @@ import jakarta.persistence.Table;
 @Table(name = "addrbook")
 public class Addrbook {
 
+    @Column
+    private String userid;
     @Id
     @Column
     private String email;
@@ -26,6 +28,14 @@ public class Addrbook {
     private String phone;
 
     public Addrbook() {
+    }
+
+    public String getUserId() {
+        return userid;
+    }
+
+    public void setUserId(String userid) {
+        this.userid = userid;
     }
 
     public String getEmail() {

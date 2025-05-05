@@ -23,7 +23,8 @@
                    user="${user}" password="${password}"/>
 
 <sql:query var="rs" dataSource="${dataSrc}">
-    SELECT email, name, phone FROM ${table}
+    SELECT email, name, phone FROM ${table} WHERE userid = ?
+    <sql:param value="${sessionScope.userid}" />
 </sql:query>
 
 <table border="1">

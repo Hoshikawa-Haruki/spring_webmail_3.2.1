@@ -16,20 +16,23 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AddrbookService {
-    
+
     @Autowired
     private AddrbookRepository addrbookRepo;
 
-    public void addEntry(String name, String email, String phone) {
+    public void addEntry(String userid, String name, String email, String phone) {
         Addrbook entry = new Addrbook();
-        entry.setEmail(email);
+        entry.setUserId(userid);
         entry.setName(name);
+        entry.setEmail(email);
         entry.setPhone(phone);
         addrbookRepo.save(entry);
     }
 
+//    public List<Addrbook> getUserEntries(String userid) {
+//        return addrbookRepo.findByUserId(userid);
+//    }
     public List<Addrbook> getAll() {
         return addrbookRepo.findAll();
     }
 }
-

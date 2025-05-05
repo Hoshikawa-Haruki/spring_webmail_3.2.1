@@ -5,6 +5,7 @@
 package deu.cse.spring_webmail.control;
 
 import deu.cse.spring_webmail.service.AddrbookService;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,8 +26,10 @@ public class JPAController {
     @PostMapping("/jpa/insert_addr")
     public String jpaInsertAddr(@RequestParam String name,
             @RequestParam String email,
-            @RequestParam String phone) {
-        addrbookService.addEntry(name, email, phone);
-        return "redirect:/show_addr"; // 저장 후 목록 페이지로 이동
+            @RequestParam String phone,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userid");  // 세션에서 로그인 ID 가져오기
+        addrbookService.addEntry(userId, name, email, phone);
+        return "redirect:/show_addr";  // 저장 후 목록으로 이동
     }
 }

@@ -32,7 +32,7 @@
             <hr/>
             <c:catch var="errorReason">
                 <mytags:addrbook user="jdbctester" password="12345"
-                                 schema="webmail" table="addrbook"/>
+                                 schema="webmail" table="addressbook"/>
             </c:catch>
             ${empty errorReason ? "<noerror>" : errorReason} <!-- 오류 원인 출력 -->
             <br/>

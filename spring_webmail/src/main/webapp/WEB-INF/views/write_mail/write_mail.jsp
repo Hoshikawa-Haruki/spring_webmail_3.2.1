@@ -30,8 +30,11 @@
                     <tr>
                         <td> 수신 </td>
                         <td> <input type="text" name="to" size="80"
-                                    value="${!empty param['sender'] ? param['sender'] : ''}"
+                                    value="${not empty param.sender ? param.sender : (not empty param.email_to ? param.email_to : '')}"
+                                    <!-- 기존 el표현식 -->
+                                    <!--value="${!empty param['sender'] ? param['sender'] : ''}" -->
             <!--    value=<%=request.getParameter("recv") == null ? "" : request.getParameter("recv")%>  -->
+            <!-- 기존 스크립틀릿 표현식 -->
                         </td>
                     </tr>
                     <tr>

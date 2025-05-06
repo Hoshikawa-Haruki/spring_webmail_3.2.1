@@ -3,13 +3,13 @@
     Created on : 2025. 5. 5., 오전 1:01:20
     Author     : Haruki
 --%>
- <!--sql, core 등 jstl라이브러리 등록--> 
+<!--sql, core 등 jstl라이브러리 등록--> 
 <%@tag description="JSTL" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <%-- The list of normal or fragment attributes can be specified here: --%>
- <!--.tag를 사용하는 쪽에서 반드시 넘겨줘야 하는 속성들--> 
+<!--.tag를 사용하는 쪽에서 반드시 넘겨줘야 하는 속성들--> 
 <%@attribute name="user" required="true" %>
 <%@attribute name="password" required="true" %>
 <%@attribute name="schema" required="true" %>
@@ -33,6 +33,8 @@
             <th>이름</th>
             <th>이메일</th>
             <th>전화번호</th>
+            <th>삭제하기</th>
+            <th>메일쓰기</th>
         </tr>
     </thead>
     <tbody>
@@ -41,6 +43,20 @@
                 <td>${row.name}</td>
                 <td>${row.email}</td>
                 <td>${row.phone}</td>
+                <td>
+                    <%-- 삭제 버튼: 이메일 기준으로 삭제 --%>
+                    <form action="${pageContext.request.contextPath}/jpa/delete_addr" method="post" style="display:inline;">
+                        <input type="hidden" name="del_email" value="${row.email}" />
+                        <button type="submit" onclick="return confirm('정말 삭제할까요?')">삭제</button>
+                    </form>
+                </td>
+                <td>
+                    <%-- 메일쓰기 버튼: 해당 이메일로 GET 요청 --%>
+                    <form action="${pageContext.request.contextPath}/write_mail" method="get" style="display:inline;">
+                        <input type="hidden" name="email_to" value="${row.email}" />
+                        <button type="submit">메일쓰기</button>
+                    </form>
+                </td>
             </tr>
         </c:forEach>
     </tbody>

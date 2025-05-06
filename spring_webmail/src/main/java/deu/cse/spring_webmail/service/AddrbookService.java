@@ -6,6 +6,7 @@ package deu.cse.spring_webmail.service;
 
 import deu.cse.spring_webmail.model.Addrbook;
 import deu.cse.spring_webmail.repository.AddrbookRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,11 @@ public class AddrbookService {
         entry.setEmail(email);
         entry.setPhone(phone);
         addrbookRepo.save(entry);
+    }
+
+    @Transactional
+    public void deleteEntry(String userId, String email) {
+        addrbookRepo.deleteByUseridAndEmail(userId, email);
     }
 
 //    public List<Addrbook> getUserEntries(String userid) {

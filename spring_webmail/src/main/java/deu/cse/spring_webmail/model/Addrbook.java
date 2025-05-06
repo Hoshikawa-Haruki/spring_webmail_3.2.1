@@ -6,6 +6,8 @@ package deu.cse.spring_webmail.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -14,12 +16,14 @@ import jakarta.persistence.Table;
  * @author Haruki
  */
 @Entity
-@Table(name = "addrbook")
+@Table(name = "addressbook")
 public class Addrbook {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;  // 고유 식별자 (PK)
     @Column
     private String userid;
-    @Id
     @Column
     private String email;
     @Column
@@ -28,6 +32,22 @@ public class Addrbook {
     private String phone;
 
     public Addrbook() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
     }
 
     public String getUserId() {

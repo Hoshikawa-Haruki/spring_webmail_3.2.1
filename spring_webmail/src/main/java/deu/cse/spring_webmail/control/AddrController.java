@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AddrController {
 
     @GetMapping("/show_addr")
-    public String addrBook() {
+    public String showAddr() {
         return "addr_menu/addr_book";
     }
 
@@ -26,5 +26,5 @@ public class AddrController {
     public String insertAddr() {
         return "addr_menu/addr_insert";
     }
-
+    
 }

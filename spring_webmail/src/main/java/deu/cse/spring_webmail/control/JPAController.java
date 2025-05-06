@@ -32,4 +32,11 @@ public class JPAController {
         addrbookService.addEntry(userId, name, email, phone);
         return "redirect:/show_addr";  // 저장 후 목록으로 이동
     }
+
+    @PostMapping("/jpa/delete_addr")
+    public String deleteAddr(@RequestParam("del_email") String email, HttpSession session) {
+        String userId = (String) session.getAttribute("userid");
+        addrbookService.deleteEntry(userId, email);
+        return "redirect:/show_addr"; // 삭제 후 목록으로 이동
+    }
 }

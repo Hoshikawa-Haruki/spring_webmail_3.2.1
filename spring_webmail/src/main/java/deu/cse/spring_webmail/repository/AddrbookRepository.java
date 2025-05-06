@@ -14,6 +14,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AddrbookRepository extends JpaRepository<Addrbook, String> {
+
     // 기본 CRUD 메서드는 자동으로 제공됨 (save, findAll 등)
     // List<Addrbook> findByUserId(String userId); // 사용자별 주소록 조회용 메서드
+    void deleteByUseridAndEmail(String userid, String email); // 주소록 삭제 메서드
+
 }

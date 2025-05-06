@@ -64,9 +64,8 @@ public class MessageParser {
         } catch (Exception ex) {
             log.error("MessageParser.parse() - Exception : {}", ex.getMessage());
             status = false;
-        } finally {
-            return status;
         }
+        return status; //finally 삭제 후 return만 남김
     }
 
     private void getEnvelope(Message m) throws Exception {

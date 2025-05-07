@@ -64,9 +64,8 @@ public class MessageParser {
         } catch (Exception ex) {
             log.error("MessageParser.parse() - Exception : {}", ex.getMessage());
             status = false;
-        } finally {
-            return status;
         }
+        return status; //finally 삭제 후 return만 남김
     }
 
     private void getEnvelope(Message m) throws Exception {
@@ -114,7 +113,7 @@ public class MessageParser {
             if (p.isMimeType("text/*")) {
                 body = (String) p.getContent();
                 if (p.isMimeType("text/plain")) {
-                    body = body.replaceAll("\r\n", " <br>");
+                    body = body.replace("\r\n", " <br>");
                 }
             } else if (p.isMimeType("multipart/alternative")) {
                 // html text보다  plain text 선호

@@ -21,6 +21,10 @@ public class MessageFormatter {
     @NonNull private String userid;  // 파일 임시 저장 디렉토리 생성에 필요
     private HttpServletRequest request = null;
     
+    // 250507 상수 추가
+    private static final String HTML_BREAK = " <br>";
+    private static final String HTML_HR    = " <hr>";
+    
     // 220612 LJM - added to implement REPLY
     @Getter private String sender;
     @Getter private String subject;
@@ -74,20 +78,23 @@ public class MessageFormatter {
         subject = parser.getSubject();
         body = parser.getBody();
 
-        buffer.append("보낸 사람: " + parser.getFromAddress() + " <br>");
-        buffer.append("받은 사람: " + parser.getToAddress() + " <br>");
-        buffer.append("Cc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : " + parser.getCcAddress() + " <br>");
-        buffer.append("보낸 날짜: " + parser.getSentDate() + " <br>");
-        buffer.append("제 &nbsp;&nbsp;&nbsp;  목: " + parser.getSubject() + " <br> <hr>");
-
-        buffer.append(parser.getBody());
+        buffer.append("보낸 사람: ").append(parser.getFromAddress()).append(HTML_BREAK)
+              .append("받은 사람: ").append(parser.getToAddress()).append(HTML_BREAK)
+              .append("Cc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ").append(parser.getCcAddress()).append(HTML_BREAK)
+              .append("보낸 날짜: ").append(parser.getSentDate()).append(HTML_BREAK)
+              .append("제 &nbsp;&nbsp;&nbsp;  목: ").append(parser.getSubject()).append(HTML_BREAK).append(HTML_HR)
+              .append(parser.getBody());
 
         String attachedFile = parser.getFileName();
         if (attachedFile != null) {
-            buffer.append("<br> <hr> 첨부파일: <a href=download"
-                    + "?userid=" + this.userid
-                    + "&filename=" + attachedFile.replaceAll(" ", "%20")
-                    + " target=_top> " + attachedFile + "</a> <br>");
+            buffer.append(HTML_BREAK).append(HTML_HR)
+                  .append("첨부파일: <a href=download?userid=")
+                  .append(this.userid)
+                  .append("&filename=")
+                  .append(attachedFile.replace(" ", "%20"))
+                  .append(" target=_top>")
+                  .append(attachedFile)
+                  .append("</a>").append(HTML_BREAK);
         }
 
         return buffer.toString();

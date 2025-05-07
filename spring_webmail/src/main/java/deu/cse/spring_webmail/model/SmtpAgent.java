@@ -68,13 +68,13 @@ public class SmtpAgent {
 
             // setRecipient() can be called repeatedly if ';' or ',' exists
             if (this.to.indexOf(';') != -1) {
-                this.to = this.to.replaceAll(";", ",");
+                this.to = this.to.replace(";", ",");
             }
             msg.setRecipients(Message.RecipientType.TO, this.to);  // 200102 LJM - 수정
 
             if (this.cc.length() > 1) {
                 if (this.cc.indexOf(';') != -1) {
-                    this.cc = this.cc.replaceAll(";", ",");
+                    this.cc = this.cc.replace(";", ",");
                 }
                 msg.setRecipients(Message.RecipientType.CC, this.cc);
             }

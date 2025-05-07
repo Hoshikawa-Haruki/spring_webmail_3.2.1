@@ -113,7 +113,7 @@ public class MessageParser {
             if (p.isMimeType("text/*")) {
                 body = (String) p.getContent();
                 if (p.isMimeType("text/plain")) {
-                    body = body.replaceAll("\r\n", " <br>");
+                    body = body.replace("\r\n", " <br>");
                 }
             } else if (p.isMimeType("multipart/alternative")) {
                 // html text보다  plain text 선호

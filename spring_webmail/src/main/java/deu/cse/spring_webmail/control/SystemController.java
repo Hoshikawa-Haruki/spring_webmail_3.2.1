@@ -39,6 +39,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @PropertySource("classpath:/system.properties")
 @Slf4j
 public class SystemController {
+    
+    //java:S1192 상수 선언
+    private static final String PARAM_USERID        = "userid";
+    private static final String REDIRECT_ADMIN_MENU = "redirect:/admin_menu";
 
     @Autowired
     private ServletContext ctx;
@@ -74,7 +78,7 @@ public class SystemController {
         switch (menu) {
             case CommandType.LOGIN:
                 String host = (String) request.getSession().getAttribute("host");
-                String userid = request.getParameter("userid");
+                String userid = request.getParameter(PARAM_USERID);
                 String password = request.getParameter("passwd");
 
                 // Check the login information is valid using <<model>>Pop3Agent.
@@ -85,12 +89,12 @@ public class SystemController {
                 if (isLoginSuccess) {
                     if (isAdmin(userid)) {
                         // HttpSession 객체에 userid를 등록해 둔다.
-                        session.setAttribute("userid", userid);
+                        session.setAttribute(PARAM_USERID, userid);
                         // response.sendRedirect("admin_menu.jsp");
-                        url = "redirect:/admin_menu";
+                        url = REDIRECT_ADMIN_MENU;
                     } else {
                         // HttpSession 객체에 userid와 password를 등록해 둔다.
-                        session.setAttribute("userid", userid);
+                        session.setAttribute(PARAM_USERID, userid);
                         session.setAttribute("password", password);
                         // response.sendRedirect("main_menu.jsp");
                         url = "redirect:/main_menu";  // URL이 http://localhost:8080/webmail/main_menu 이와 같이 됨.
@@ -131,7 +135,7 @@ public class SystemController {
     public String mainMenu(Model model) {
         Pop3Agent pop3 = new Pop3Agent();
         pop3.setHost((String) session.getAttribute("host"));
-        pop3.setUserid((String) session.getAttribute("userid"));
+        pop3.setUserid((String) session.getAttribute(PARAM_USERID));
         pop3.setPassword((String) session.getAttribute("password"));
 
         String messageList = pop3.getMessageList();
@@ -175,7 +179,7 @@ public class SystemController {
             log.error("add_user.do: 시스템 접속에 실패했습니다. 예외 = {}", ex.getMessage());
         }
 
-        return "redirect:/admin_menu";
+        return REDIRECT_ADMIN_MENU;
     }
 
     @GetMapping("/delete_user")
@@ -204,7 +208,7 @@ public class SystemController {
             log.error("delete_user.do : 예외 = {}", ex);
         }
 
-        return "redirect:/admin_menu";
+        return REDIRECT_ADMIN_MENU;
     }
 
     private List<String> getUserList() {

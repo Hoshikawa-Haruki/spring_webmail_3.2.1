@@ -38,7 +38,11 @@
             <br/>
             <a href="${pageContext.request.contextPath}/insert_addr">주소록 추가</a>
         </div>
-
+        <c:if test="${not empty msg}">
+            <script>
+                alert("${msg}");
+            </script>
+        </c:if>
         <%@include file="../footer.jspf"%>
     </body>
 </html>

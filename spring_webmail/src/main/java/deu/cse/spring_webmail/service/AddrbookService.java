@@ -23,7 +23,7 @@ public class AddrbookService {
 
     public void addEntry(String userid, String name, String email, String phone) {
         Addrbook entry = new Addrbook();
-        entry.setUserIdentifier(userid);
+        entry.setUserid(userid);
         entry.setName(name);
         entry.setEmail(email);
         entry.setPhone(phone);
@@ -35,9 +35,13 @@ public class AddrbookService {
         addrbookRepo.deleteByUseridAndEmail(userId, email);
     }
 
+    public boolean isAlreadyRegistered(String userid, String email) {
+        return addrbookRepo.existsByUseridAndEmail(userid, email);
+    }
 //    public List<Addrbook> getUserEntries(String userid) {
 //        return addrbookRepo.findByUserId(userid);
 //    }
+
     public List<Addrbook> getAll() {
         return addrbookRepo.findAll();
     }

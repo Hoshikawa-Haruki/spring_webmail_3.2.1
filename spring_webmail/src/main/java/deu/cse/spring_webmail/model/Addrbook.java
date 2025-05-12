@@ -10,13 +10,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  *
  * @author Haruki
  */
 @Entity
-@Table(name = "addressbook")
+@Table(name = "addressbook", uniqueConstraints = @UniqueConstraint(columnNames = {"userid", "email"}))
 public class Addrbook {
 
     @Id
@@ -47,14 +48,6 @@ public class Addrbook {
     }
 
     public void setUserid(String userid) {
-        this.userid = userid;
-    }
-
-    public String getUserIdentifier() {
-        return userid;
-    }
-
-    public void setUserIdentifier(String userid) {
         this.userid = userid;
     }
 

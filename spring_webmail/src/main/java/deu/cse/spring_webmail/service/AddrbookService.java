@@ -23,7 +23,7 @@ public class AddrbookService {
 
     public void addEntry(String userid, String name, String email, String phone) {
         Addrbook entry = new Addrbook();
-        entry.setUserId(userid);
+        entry.setUserIdentifier(userid);
         entry.setName(name);
         entry.setEmail(email);
         entry.setPhone(phone);

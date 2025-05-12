@@ -50,11 +50,11 @@ public class Addrbook {
         this.userid = userid;
     }
 
-    public String getUserId() {
+    public String getUserIdentifier() {
         return userid;
     }
 
-    public void setUserId(String userid) {
+    public void setUserIdentifier(String userid) {
         this.userid = userid;
     }
 

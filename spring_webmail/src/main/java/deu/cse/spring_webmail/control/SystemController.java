@@ -39,9 +39,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @PropertySource("classpath:/system.properties")
 @Slf4j
 public class SystemController {
-    
+
     //java:S1192 상수 선언
-    private static final String PARAM_USERID        = "userid";
+    private static final String PARAM_USERID = "userid";
     private static final String REDIRECT_ADMIN_MENU = "redirect:/admin_menu";
 
     @Autowired
@@ -50,6 +50,11 @@ public class SystemController {
     private HttpSession session;
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private Pop3AgentFactory pop3AgentFactory;
+    @Autowired
+    private UserAdminAgentFactory userAdminAgentFactory;
 
     @Value("${root.id}")
     private String ROOT_ID;
@@ -82,7 +87,10 @@ public class SystemController {
                 String password = request.getParameter("passwd");
 
                 // Check the login information is valid using <<model>>Pop3Agent.
-                Pop3Agent pop3Agent = new Pop3Agent(host, userid, password);
+                // 기존
+                // Pop3Agent pop3Agent = new Pop3Agent(host, userid, password);
+                // 수정 2025-05-13
+                Pop3Agent pop3Agent = pop3AgentFactory.create(host, userid, password);
                 boolean isLoginSuccess = pop3Agent.validate();
 
                 // Now call the correct page according to its validation result.
@@ -134,11 +142,18 @@ public class SystemController {
 
     @GetMapping("/main_menu")
     public String mainMenu(Model model) {
-        Pop3Agent pop3 = new Pop3Agent();
-        pop3.setHost((String) session.getAttribute("host"));
-        pop3.setUserid((String) session.getAttribute(PARAM_USERID));
-        pop3.setPassword((String) session.getAttribute("password"));
-
+        // 기존
+        // Pop3Agent pop3 = new Pop3Agent();
+        // pop3.setHost((String) session.getAttribute("host"));
+        // pop3.setUserid((String) session.getAttribute(PARAM_USERID));
+        // pop3.setPassword((String) session.getAttribute("password"));
+        // 수정 : 팩토리 메서드 적용
+        // 2025-05-13
+        Pop3Agent pop3 = pop3AgentFactory.create(
+                (String) session.getAttribute("host"),
+                (String) session.getAttribute(PARAM_USERID),
+                (String) session.getAttribute("password")
+        );
         String messageList = pop3.getMessageList();
         model.addAttribute("messageList", messageList);
         return "main_menu";
@@ -166,7 +181,12 @@ public class SystemController {
 
         try {
             String cwd = ctx.getRealPath(".");
-            UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+            // 기존 2025-05-13
+            //UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+            //        ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
+            // 수정 : 팩토리 메서드 적용
+            // 2025-05-13
+            UserAdminAgent agent = userAdminAgentFactory.create(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
                     ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
 
             // if (addUser successful)  사용자 등록 성공 팦업창
@@ -202,8 +222,14 @@ public class SystemController {
 
         try {
             String cwd = ctx.getRealPath(".");
-            UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+            // 기존 2025-05-13
+            //UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+            //        ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
+            // 수정 : 팩토리 메서드 적용
+            // 2025-05-13
+            UserAdminAgent agent = userAdminAgentFactory.create(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
                     ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
+
             agent.deleteUsers(selectedUsers);  // 수정!!!
         } catch (Exception ex) {
             log.error("delete_user.do : 예외 = {}", ex);
@@ -214,8 +240,14 @@ public class SystemController {
 
     private List<String> getUserList() {
         String cwd = ctx.getRealPath(".");
-        UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+        // 기존 2025-05-13
+        //UserAdminAgent agent = new UserAdminAgent(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
+        //        ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
+        // 수정 : 팩토리 메서드 적용
+        // 2025-05-13
+        UserAdminAgent agent = userAdminAgentFactory.create(JAMES_HOST, JAMES_CONTROL_PORT, cwd,
                 ROOT_ID, ROOT_PASSWORD, ADMINISTRATOR);
+
         List<String> userList = agent.getUserList();
         log.debug("userList = {}", userList);
 
@@ -231,9 +263,9 @@ public class SystemController {
 
     /**
      * https://34codefactory.wordpress.com/2019/06/16/how-to-display-image-in-jsp-using-spring-code-factory/
-     * 
+     *
      * @param imageName
-     * @return 
+     * @return
      */
     @RequestMapping(value = "/get_image/{imageName}")
     @ResponseBody
@@ -253,7 +285,7 @@ public class SystemController {
         byte[] imageInByte;
         try {
             byteArrayOutputStream = new ByteArrayOutputStream();
-            bufferedImage = ImageIO.read(new File(folderPath + File.separator + imageName) );
+            bufferedImage = ImageIO.read(new File(folderPath + File.separator + imageName));
             String format = imageName.substring(imageName.lastIndexOf(".") + 1);
             ImageIO.write(bufferedImage, format, byteArrayOutputStream);
             byteArrayOutputStream.flush();

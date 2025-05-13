@@ -33,6 +33,7 @@ public class Addrbook {
     private String phone;
 
     public Addrbook() {
+        //no-op: 의도적으로 빈 메서드임
     }
 
     public Long getId() {

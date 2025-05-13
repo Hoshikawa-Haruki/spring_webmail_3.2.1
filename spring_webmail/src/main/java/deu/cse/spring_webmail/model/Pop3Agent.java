@@ -36,6 +36,11 @@ public class Pop3Agent {
     @Getter private String subject;
     @Getter private String body;
     
+    //상수 선언
+    private static final String INBOX_FOLDER = "INBOX";
+    private static final String PROP_TRUE  = "true";
+    private static final String PROP_FALSE = "false";
+    
     public Pop3Agent(String host, String userid, String password) {
         this.host = host;
         this.userid = userid;
@@ -65,7 +70,7 @@ public class Pop3Agent {
         try {
             // Folder 설정
 //            Folder folder = store.getDefaultFolder();
-            Folder folder = store.getFolder("INBOX");
+            Folder folder = store.getFolder(INBOX_FOLDER);
             folder.open(Folder.READ_WRITE);
 
             // Message에 DELETED flag 설정
@@ -98,7 +103,7 @@ public class Pop3Agent {
 
         try {
             // 메일 폴더 열기
-            Folder folder = store.getFolder("INBOX");  // 3.2
+            Folder folder = store.getFolder(INBOX_FOLDER);  // 3.2
             folder.open(Folder.READ_ONLY);  // 3.3
 
             // 현재 수신한 메시지 모두 가져오기
@@ -129,7 +134,7 @@ public class Pop3Agent {
         }
 
         try {
-            Folder folder = store.getFolder("INBOX");
+            Folder folder = store.getFolder(INBOX_FOLDER);
             folder.open(Folder.READ_ONLY);
 
             Message message = folder.getMessage(n);
@@ -156,10 +161,10 @@ public class Pop3Agent {
         // https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/package-summary.html
         props.setProperty("mail.pop3.host", host);
         props.setProperty("mail.pop3.user", userid);
-        props.setProperty("mail.pop3.apop.enable", "false");
-        props.setProperty("mail.pop3.disablecapa", "true");  // 200102 LJM - added cf. https://javaee.github.io/javamail/docs/api/com/sun/mail/pop3/package-summary.html
-        props.setProperty("mail.debug", "false");
-        props.setProperty("mail.pop3.debug", "false");
+        props.setProperty("mail.pop3.apop.enable", PROP_FALSE);
+        props.setProperty("mail.pop3.disablecapa", PROP_TRUE);  // 200102 LJM - added cf. https://javaee.github.io/javamail/docs/api/com/sun/mail/pop3/package-summary.html
+        props.setProperty("mail.debug", PROP_FALSE);
+        props.setProperty("mail.pop3.debug", PROP_FALSE);
 
         Session session = Session.getInstance(props);
         session.setDebug(false);

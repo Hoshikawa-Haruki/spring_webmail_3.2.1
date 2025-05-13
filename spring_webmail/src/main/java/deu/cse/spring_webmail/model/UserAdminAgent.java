@@ -25,6 +25,11 @@ public class UserAdminAgent {
     private JMXConnector connector;
     private MBeanServerConnection mbsc;
     private ObjectName userRepositoryMBean;
+    
+    //상수 선언
+    private static final String TYPE_STRING        = "java.lang.String";
+    private static final String[] SIG_SINGLE_STRING = { TYPE_STRING }; 
+    private static final String[] SIG_DOUBLE_STRING = { TYPE_STRING, TYPE_STRING };
 
     // 기본 생성자
     public UserAdminAgent() {
@@ -77,7 +82,7 @@ public class UserAdminAgent {
                     userRepositoryMBean,
                     "addUser",
                     new Object[]{userId, password},
-                    new String[]{"java.lang.String", "java.lang.String"}
+                    SIG_DOUBLE_STRING
             );
             log.info("사용자 추가 성공: {}", userId);
             return true;
@@ -126,7 +131,7 @@ public class UserAdminAgent {
                         userRepositoryMBean,
                         "deleteUser",
                         new Object[]{userId},
-                        new String[]{"java.lang.String"}
+                        SIG_SINGLE_STRING
                 );
                 log.info("사용자 삭제됨: {}", userId);
             }
@@ -149,7 +154,7 @@ public class UserAdminAgent {
                     userRepositoryMBean,
                     "contains",
                     new Object[]{userId},
-                    new String[]{"java.lang.String"}
+                    SIG_SINGLE_STRING
             );
             log.info("사용자 존재 여부 확인({}): {}", userId, exists);
             return exists;

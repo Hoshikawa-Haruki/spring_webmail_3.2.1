@@ -103,7 +103,7 @@ public class SystemController {
                 } else {
                     // RequestDispatcher view = request.getRequestDispatcher("login_fail.jsp");
                     // view.forward(request, response);
-                    redirectAttrs.addAttribute("userid", userid); // 실패 화면에 사용될 사용자 ID 전달
+                    redirectAttrs.addAttribute(PARAM_USERID, userid); // 실패 화면에 사용될 사용자 ID 전달
                     url = "redirect:/login_fail";
                 }
                 break;

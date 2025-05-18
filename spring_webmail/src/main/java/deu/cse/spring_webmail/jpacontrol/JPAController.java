@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package deu.cse.spring_webmail.control;
+package deu.cse.spring_webmail.jpacontrol;
 
 import deu.cse.spring_webmail.service.AddrbookService;
 import jakarta.servlet.http.HttpSession;

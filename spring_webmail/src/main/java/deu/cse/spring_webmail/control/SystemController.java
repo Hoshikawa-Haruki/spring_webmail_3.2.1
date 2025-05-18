@@ -90,6 +90,7 @@ public class SystemController {
                 // 기존
                 // Pop3Agent pop3Agent = new Pop3Agent(host, userid, password);
                 // 수정 2025-05-13
+                // 세션에서 가져오는 것이 아니고, 사용자 입력으로부터 직접 가져오는 값
                 Pop3Agent pop3Agent = pop3AgentFactory.create(host, userid, password);
                 boolean isLoginSuccess = pop3Agent.validate();
 
@@ -149,11 +150,7 @@ public class SystemController {
         // pop3.setPassword((String) session.getAttribute("password"));
         // 수정 : 팩토리 메서드 적용
         // 2025-05-13
-        Pop3Agent pop3 = pop3AgentFactory.create(
-                (String) session.getAttribute("host"),
-                (String) session.getAttribute(PARAM_USERID),
-                (String) session.getAttribute("password")
-        );
+        Pop3Agent pop3 = pop3AgentFactory.createFromSession(session);
         String messageList = pop3.getMessageList();
         model.addAttribute("messageList", messageList);
         return "main_menu";

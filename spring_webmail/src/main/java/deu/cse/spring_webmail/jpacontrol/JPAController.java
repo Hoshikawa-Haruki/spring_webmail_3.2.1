@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 public class JPAController {
 
+    private static final String REDIRECT_SHOW_ADDR = "redirect:/show_addr";
     @Autowired
     private AddrbookService addrbookService;
 
@@ -32,11 +33,11 @@ public class JPAController {
         String userId = (String) session.getAttribute("userid");  // 세션에서 로그인 ID 가져오기
         if (addrbookService.isAlreadyRegistered(userId, email)) {
             attrs.addFlashAttribute("msg", "이미 등록된 이메일입니다.");
-            return "redirect:/show_addr";
+            return REDIRECT_SHOW_ADDR;
         }
         addrbookService.addEntry(userId, name, email, phone);
         attrs.addFlashAttribute("msg", "주소록에 추가되었습니다.");
-        return "redirect:/show_addr";  // 저장 후 목록으로 이동
+        return REDIRECT_SHOW_ADDR;  // 저장 후 목록으로 이동
     }
 
     @PostMapping("/jpa/delete_addr")
@@ -44,6 +45,6 @@ public class JPAController {
         String userId = (String) session.getAttribute("userid");
         addrbookService.deleteEntry(userId, email);
         attrs.addFlashAttribute("msg", "주소록에서 삭제되었습니다.");
-        return "redirect:/show_addr"; // 삭제 후 목록으로 이동
+        return REDIRECT_SHOW_ADDR; // 삭제 후 목록으로 이동
     }
 }

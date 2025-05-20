@@ -182,7 +182,7 @@ public class MessageParser {
         }
     }
 
-    private String getAddresses(Address[] addresses) {
+    String getAddresses(Address[] addresses) {
         StringBuilder buffer = new StringBuilder();
 
         for (Address address : addresses) {

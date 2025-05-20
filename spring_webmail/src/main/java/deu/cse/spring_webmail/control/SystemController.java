@@ -294,7 +294,7 @@ public class SystemController {
         } catch (Exception e) {
             log.error("getImageBytes 예외: {}", e.getMessage());
         }
-        return null;
+        return new byte[0];
     }
 
 }

@@ -223,4 +223,20 @@ class SystemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().bytes(expectedBytes));
     }
+
+    @Test
+    void testGetImage_nofile() throws Exception {
+        String fileName = "nonexistent.jpg";
+
+        // 경로는 존재하지만 해당 파일은 없음
+        Path tempImgDir = Files.createTempDirectory("img_test");
+
+        given(servletContext.getRealPath("/WEB-INF/views/img_test/img"))
+                .willReturn(tempImgDir.toString());
+
+        mockMvc.perform(get("/get_image/" + fileName))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes(new byte[0]));
+    }
+
 }

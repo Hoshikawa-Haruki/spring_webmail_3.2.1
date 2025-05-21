@@ -41,12 +41,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 public class ReadController {
 
-    @Autowired
-    private ServletContext ctx;
-    @Autowired
-    private HttpSession session;
-    @Autowired
-    private HttpServletRequest request;
+    private final ServletContext ctx;
+    private final HttpSession session;
+    private final HttpServletRequest request;
+
+    public ReadController(ServletContext ctx, HttpSession session, HttpServletRequest request) {
+        this.ctx = ctx;
+        this.session = session;
+        this.request = request;
+    }
     @Value("${file.download_folder}")
     private String DOWNLOAD_FOLDER;
 

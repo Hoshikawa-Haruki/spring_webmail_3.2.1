@@ -1,137 +1,131 @@
 package deu.cse.spring_webmail.control;
 
 import deu.cse.spring_webmail.model.Pop3Agent;
+import deu.cse.spring_webmail.repository.AddrbookRepository;
+import deu.cse.spring_webmail.service.AddrbookService;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import org.springframework.test.context.TestPropertySource;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class ReadControllerTest {
+@WebMvcTest(ReadController.class)
+@TestPropertySource(properties = "file.download_folder=/mock_download")
+class ReadControllerTest {
 
-    @Mock
-    private ServletContext ctx;
-    @Mock
-    private HttpSession session;
-    @Mock
-    private HttpServletRequest request;
-    @Mock
+    @MockBean
+    private AddrbookService addrbookService;
+
+    @MockBean
+    private AddrbookRepository addrbookRepository;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private Pop3AgentFactory pop3AgentFactory;
-    @Mock
-    private Pop3Agent pop3Agent;
-    @Mock
-    private Model model;
-    @Mock
-    private RedirectAttributes redirectAttributes;
 
-    @InjectMocks
-    private ReadController readController;
+    @MockBean
+    private Pop3Agent pop3Agent;
+
+    @MockBean
+    private ServletContext ctx;
+
+    private MockHttpSession session;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
-
-        readController = new ReadController();
-
-        inject("ctx", ctx);
-        inject("session", session);
-        inject("request", request);
-        inject("pop3AgentFactory", pop3AgentFactory);
-        inject("DOWNLOAD_FOLDER", "mock_download");
-    }
-
-    private void inject(String fieldName, Object value) throws Exception {
-        Field field = ReadController.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(readController, value);
+    void setup() {
+        session = new MockHttpSession();
     }
 
     @Test
-    public void testShowMessage() {
+    void testshowMessage_success() throws Exception {
         int msgId = 1;
-        String expectedMessage = "Hello message";
 
-        given(pop3AgentFactory.createFromSession(session, request)).willReturn(pop3Agent);
-        given(pop3Agent.getMessage(msgId)).willReturn(expectedMessage);
+        given(pop3AgentFactory.createFromSession(any(), any())).willReturn(pop3Agent);
+        given(pop3Agent.getMessage(msgId)).willReturn("Hello message");
         given(pop3Agent.getSender()).willReturn("me@test.com");
-        given(pop3Agent.getSubject()).willReturn("Test Subject");
-        given(pop3Agent.getBody()).willReturn("Test Body");
+        given(pop3Agent.getSubject()).willReturn("테스트 제목");
+        given(pop3Agent.getBody()).willReturn("본문");
 
-        String viewName = readController.showMessage(msgId, model);
+        mockMvc.perform(get("/show_message")
+                .param("msgid", String.valueOf(msgId))
+                .session(session))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("msg"))
+                .andExpect(view().name("/read_mail/show_message"));
 
-        verify(session).setAttribute("sender", "me@test.com");
-        verify(session).setAttribute("subject", "Test Subject");
-        verify(session).setAttribute("body", "Test Body");
-        verify(model).addAttribute("msg", expectedMessage);
-
-        assertEquals("/read_mail/show_message", viewName);
+        assertThat(session.getAttribute("sender")).isEqualTo("me@test.com");
+        assertThat(session.getAttribute("subject")).isEqualTo("테스트 제목");
+        assertThat(session.getAttribute("body")).isEqualTo("본문");
     }
 
     @Test
-    public void testDeleteMail_success() {
+    void testdeleteMail_success() throws Exception {
         int msgId = 1;
 
-        given(pop3AgentFactory.createFromSession(session)).willReturn(pop3Agent);
-        given(pop3Agent.deleteMessage(msgId, true)).willReturn(true);
+        given(pop3AgentFactory.createFromSession(any())).willReturn(pop3Agent);
+        given(pop3Agent.deleteMessage(eq(msgId), eq(true))).willReturn(true);
 
-        String result = readController.deleteMailDo(msgId, redirectAttributes);
-
-        verify(redirectAttributes).addFlashAttribute("msg", "메시지 삭제를 성공하였습니다.");
-        assertEquals("redirect:main_menu", result);
+        mockMvc.perform(get("/delete_mail.do")
+                .param("msgid", String.valueOf(msgId)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("main_menu"))
+                .andExpect(flash().attribute("msg", "메시지 삭제를 성공하였습니다."));
     }
 
     @Test
-    public void testDeleteMail_failure() {
+    void testdeleteMail_fail() throws Exception {
         int msgId = 1;
 
-        given(pop3AgentFactory.createFromSession(session)).willReturn(pop3Agent);
-        given(pop3Agent.deleteMessage(msgId, true)).willReturn(false);
+        given(pop3AgentFactory.createFromSession(any())).willReturn(pop3Agent);
+        given(pop3Agent.deleteMessage(eq(msgId), eq(true))).willReturn(false);
 
-        String result = readController.deleteMailDo(msgId, redirectAttributes);
-
-        verify(redirectAttributes).addFlashAttribute("msg", "메시지 삭제를 실패하였습니다.");
-        assertEquals("redirect:main_menu", result);
+        mockMvc.perform(get("/delete_mail.do")
+                .param("msgid", String.valueOf(msgId)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("main_menu"))
+                .andExpect(flash().attribute("msg", "메시지 삭제를 실패하였습니다."));
     }
 
     @Test
-    public void testDownloadFile() throws Exception {
+    void testdownload_success(@TempDir Path tempDir) throws Exception {
         String userId = "tester";
-        String fileName = "test.txt";
+        String fileName = "sample.txt";
 
-        // 임시 디렉토리 생성
-        Path fakeDir = Files.createTempDirectory("mock_download");
+        // 1. /mock_download/tester/sample.txt 파일 생성
+        Path downloadBase = tempDir.resolve("mock_download").resolve(userId);
+        Files.createDirectories(downloadBase);
+        Path filePath = downloadBase.resolve(fileName);
+        Files.writeString(filePath, "Hello World!");
 
-        // /mock_download/tester 폴더 생성
-        Path userDir = fakeDir.resolve(userId);
-        Files.createDirectories(userDir);
+        // 2. ServletContext.getRealPath() mock
+        given(ctx.getRealPath("/mock_download")).willReturn(tempDir.resolve("mock_download").toString());
 
-        // /mock_download/tester/test.txt 파일 생성
-        Path filePath = userDir.resolve(fileName);
-        Files.write(filePath, "hello".getBytes());
+        // 3. 요청 수행
+        MvcResult result = mockMvc.perform(get("/download")
+                .param("userid", userId)
+                .param("filename", fileName))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("attachment")))
+                .andReturn();
 
-        // 컨트롤러가 fakeDir 경로를 기준으로 찾게 설정
-        given(ctx.getRealPath(any())).willReturn(fakeDir.toString());
-
-        // 실제 메서드 실행
-        ResponseEntity<?> response = readController.download(userId, fileName);
-
-        // 검증
-        assertEquals(200, response.getStatusCodeValue());
-        assertTrue(response.getBody() instanceof InputStreamResource);
-        assertNotNull(response.getBody());
+        // 4. 응답 내용 확인
+        String content = result.getResponse().getContentAsString();
+        assertThat(content).isEqualTo("Hello World!");
     }
 }

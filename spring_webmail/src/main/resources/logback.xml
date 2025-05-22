@@ -1,26 +1,47 @@
 
 <configuration>
-
+    <!-- 콘솔 로그 : INFO 이상만 출력-->
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <!--
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-                -->
         <encoder>
             <charset>UTF-8</charset>
-            <Pattern>%d %-4relative [%thread] %-5level %logger{35} - %msg%n</Pattern>
+            <!-- %msg %l (logback 에서는 %caller) 로 메서드와, 라인을 출력-->
+            <!-- 상대 시간(relative time) 로그. 디버깅/성능 측정용 -->
+            <Pattern>%d %-4relative [%thread] %-5level %logger{35} - %msg%caller%n</Pattern>
+            <!--운영 로그 파일 저장/분석용-->
+            <!--<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} -%msg%caller%n</Pattern>-->
         </encoder>
     </appender>
-    
+
+    <!-- HTML 로그 파일 : DEBUG 이상 모두 기록 -->
+    <appender name="htmlFileAppender" class="ch.qos.logback.core.FileAppender">
+        <file>logs/logdata.html</file> <!-- 로그파일 저장 위치 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.html.HTMLLayout" />
+            <!-- html로 저장 -->
+            
+            <!--HTML 로그에서 시간 형식을 국제 표준으로 맞추고, 시간대를 UTC로 고정-->
+            <!--htmllayout datePattern = "iso8601" timezone = "gmt+0"-->
+        </encoder>
+    </appender>
     <!--
     <logger name="deu.se.spring_jsp" level="debug">
         <appender-ref ref="consoleAppender"/>
     </logger>
     -->
-
-    <root level="debug">
-        <appender-ref ref="consoleAppender"/>
+    
+    <!-- 루트 로그: 콘솔 + HTML 파일로 출력 -->
+    <!--기존 : debug 레벨-->
+    <root level="info"> 
+        <!--콘솔 출력 설정-->
+        <appender-ref ref="consoleAppender" /> 
+        <!--파일 출력 설정-->
+        <appender-ref ref="htmlFileAppender" /> 
     </root>
-
+    
 </configuration>

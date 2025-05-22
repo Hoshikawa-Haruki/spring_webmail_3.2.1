@@ -57,7 +57,6 @@ public class MessageFormatter {
                     + parser.getSubject() + "</a> </td>"
                     + " <td id=date>" + parser.getSentDate() + "</td>"
                     + " <td id=delete>"
-                    + "<a href=delete_mail.do"
                     + "<a href='delete_mail.do?msgid=" + (i + 1) + "' onclick=\"return confirm('정말 삭제하시겠습니까?');\">삭제</a>"
                     + " </tr>");
         }

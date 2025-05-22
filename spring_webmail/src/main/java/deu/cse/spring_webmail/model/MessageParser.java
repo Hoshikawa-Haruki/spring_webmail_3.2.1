@@ -37,7 +37,7 @@ public class MessageParser {
     @Getter @Setter private String body;
     @Getter @Setter private String fileName;
     @Getter @Setter private String downloadTempDir = "C:/temp/download/";
-    
+
     public MessageParser(Message message, String userid, HttpServletRequest request) {
         this(message, userid);
         PropertyReader props = new PropertyReader();
@@ -83,53 +83,86 @@ public class MessageParser {
     }
 
     // ref: http://www.oracle.com/technetwork/java/faq-135477.html#readattach
+    /**
+     * 메일의 Part 객체를 분석하여 본문 또는 첨부파일을 처리하는 메서드 - 첨부파일은 saveAttachedFile()로 저장 -
+     * 텍스트 또는 멀티파트는 재귀적으로 파싱
+     */
     private void getPart(Part p) throws Exception {
+        if (isAttachment(p)) {
+            saveAttachedFile(p);
+        } else if (p.isMimeType("text/*")) {
+            readText(p);
+        } else if (p.isMimeType("multipart/alternative")) {
+            readPlainTextInHtmlEmail(p);
+        } else if (p.isMimeType("multipart/*")) {
+            readEachPart(p);
+        }
+    }
+
+    /**
+     * 첨부파일인지 확인하는 메서드 - Part의 Disposition이 ATTACHMENT 또는 INLINE인 경우 true 반환
+     */
+    private boolean isAttachment(Part p) throws Exception {
         String disp = p.getDisposition();
+        return disp != null
+                && (disp.equalsIgnoreCase(Part.ATTACHMENT) || disp.equalsIgnoreCase(Part.INLINE));
+    }
 
-        if (disp != null && (disp.equalsIgnoreCase(Part.ATTACHMENT)
-                || disp.equalsIgnoreCase(Part.INLINE))) {  // 첨부 파일
-//            fileName = p.getFileName();
-            fileName = MimeUtility.decodeText(p.getFileName());
-//            fileName = fileName.replaceAll(" ", "%20");
-            if (fileName != null) {
-                // 첨부 파일을 서버의 내려받기 임시 저장소에 저장
-                String tempUserDir = this.downloadTempDir + File.separator + this.userid;
-                File dir = new File(tempUserDir);
-                if (!dir.exists()) {  // tempUserDir 생성
-                    dir.mkdir();
-                }
+    /**
+     * 첨부파일을 서버에 저장하는 메서드 - 파일명을 디코딩하고 사용자 임시 폴더에 저장함
+     */
+    private void saveAttachedFile(Part p) throws Exception {
+        String fileName = MimeUtility.decodeText(p.getFileName());
+        if (fileName == null) {
+            return;
+        }
 
-                String filename = MimeUtility.decodeText(p.getFileName());
-                // 파일명에 " "가 있을 경우 서블릿에 파라미터로 전달시 문제 발생함.
-                // " "를 모두 "_"로 대체함.
-//                filename = filename.replaceAll("%20", " ");
-                DataHandler dh = p.getDataHandler();
-                FileOutputStream fos = new FileOutputStream(tempUserDir + File.separator + filename);
-                dh.writeTo(fos);
-                fos.flush();
-                fos.close();
+        String tempUserDir = this.downloadTempDir + File.separator + this.userid;
+        File dir = new File(tempUserDir);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+
+        String decodedFileName = MimeUtility.decodeText(p.getFileName());
+        DataHandler dh = p.getDataHandler();
+        try (FileOutputStream fos = new FileOutputStream(tempUserDir + File.separator + decodedFileName)) {
+            dh.writeTo(fos);
+            fos.flush();
+        }
+        this.fileName = decodedFileName;
+    }
+
+    /**
+     * 일반 텍스트 내용을 본문(body)으로 읽어오는 메서드 - text/plain인 경우 개행을 <br>로 변환
+     */
+    private void readText(Part p) throws Exception {
+        body = (String) p.getContent();
+        if (p.isMimeType("text/plain")) {
+            body = body.replace("\r\n", " <br>");
+        }
+    }
+
+    /**
+     * HTML 이메일에서 text/plain 본문만 선택적으로 읽는 메서드 - multipart/alternative에서
+     * text/plain만 재귀적으로 파싱
+     */
+    private void readPlainTextInHtmlEmail(Part p) throws Exception {
+        Multipart mp = (Multipart) p.getContent();
+        for (int i = 0; i < mp.getCount(); i++) {
+            Part bp = mp.getBodyPart(i);
+            if (bp.isMimeType("text/plain")) {
+                getPart(bp); // 재귀 호출
             }
-        } else {  // 메일 본문
-            if (p.isMimeType("text/*")) {
-                body = (String) p.getContent();
-                if (p.isMimeType("text/plain")) {
-                    body = body.replace("\r\n", " <br>");
-                }
-            } else if (p.isMimeType("multipart/alternative")) {
-                // html text보다  plain text 선호
-                Multipart mp = (Multipart) p.getContent();
-                for (int i = 0; i < mp.getCount(); i++) {
-                    Part bp = mp.getBodyPart(i);
-                    if (bp.isMimeType("text/plain")) {  // "text/html"도 있을 것임.
-                        getPart(bp);
-                    }
-                }
-            } else if (p.isMimeType("multipart/*")) {
-                Multipart mp = (Multipart) p.getContent();
-                for (int i = 0; i < mp.getCount(); i++) {
-                    getPart(mp.getBodyPart(i));
-                }
-            }
+        }
+    }
+
+    /**
+     * multipart 메일의 각 파트를 반복적으로 파싱하는 메서드
+     */
+    private void readEachPart(Part p) throws Exception {
+        Multipart mp = (Multipart) p.getContent();
+        for (int i = 0; i < mp.getCount(); i++) {
+            getPart(mp.getBodyPart(i)); // 재귀 호출
         }
     }
 
@@ -149,7 +182,7 @@ public class MessageParser {
         }
     }
 
-    private String getAddresses(Address[] addresses) {
+    String getAddresses(Address[] addresses) {
         StringBuilder buffer = new StringBuilder();
 
         for (Address address : addresses) {

@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 public class PropertyReader {
 	private Properties props = new Properties();
 	
-        @Autowired
 	public PropertyReader() {
 	    this("/system.properties");
 	}

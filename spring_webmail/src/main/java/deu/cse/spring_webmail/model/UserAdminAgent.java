@@ -25,36 +25,14 @@ public class UserAdminAgent {
     private JMXConnector connector;
     private MBeanServerConnection mbsc;
     private ObjectName userRepositoryMBean;
-
+    
     //상수 선언
-    private static final String TYPE_STRING = "java.lang.String";
-    private static final String[] SIG_SINGLE_STRING = {TYPE_STRING};
-    private static final String[] SIG_DOUBLE_STRING = {TYPE_STRING, TYPE_STRING};
+    private static final String TYPE_STRING        = "java.lang.String";
+    private static final String[] SIG_SINGLE_STRING = { TYPE_STRING }; 
+    private static final String[] SIG_DOUBLE_STRING = { TYPE_STRING, TYPE_STRING };
 
     // 기본 생성자
     public UserAdminAgent() {
-    }
-    // 2025.05.20
-    // UserAdminAgent 팩토리 테스팅용 getter 메서드 추가
-
-    public String getServer() {
-        return server;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getRootId() {
-        return ROOT_ID;
-    }
-
-    public String getRootPw() {
-        return ROOT_PASSWORD;
-    }
-
-    public String getAdminId() {
-        return ADMIN_ID;
     }
 
     /**

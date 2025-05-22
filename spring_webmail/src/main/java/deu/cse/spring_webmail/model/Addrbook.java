@@ -33,7 +33,6 @@ public class Addrbook {
     private String phone;
 
     public Addrbook() {
-        // Required by JPA specification - do not remove
     }
 
     public Long getId() {

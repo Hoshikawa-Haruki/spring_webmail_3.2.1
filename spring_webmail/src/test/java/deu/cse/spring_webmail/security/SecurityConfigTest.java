@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 /**
  *
@@ -86,7 +87,8 @@ public class SecurityConfigTest {
 
         mockMvc.perform(post("/login.do")
                 .param("userid", "wrong")
-                .param("passwd", "badpw"))
+                .param("passwd", "badpw")
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login_fail"))
                 .andExpect(request().sessionAttribute("loginErrorUserid", "wrong"));
@@ -98,7 +100,8 @@ public class SecurityConfigTest {
         session.setAttribute("userid", "user1");
         session.setAttribute("password", "userpw");
 
-        mockMvc.perform(post("/logout").session(session))
+        mockMvc.perform(post("/logout").session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
@@ -107,7 +110,8 @@ public class SecurityConfigTest {
     void testLoginSuccessAsAdminRedirect() throws Exception { // 실제 아이디가 사용되므로 삭제해야할 가능성 O
         mockMvc.perform(post("/login.do")
                 .param("userid", "test@test.com") // ADMIN 권한이 부여되는 아이디
-                .param("passwd", "test"))
+                .param("passwd", "test")
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin_menu"))
                 .andExpect(request().sessionAttribute("userid", "test@test.com"))
@@ -119,7 +123,8 @@ public class SecurityConfigTest {
     void testLoginSuccessAsUserRedirect() throws Exception {
         mockMvc.perform(post("/login.do")
                 .param("userid", "user")
-                .param("passwd", "userpw"))
+                .param("passwd", "userpw")
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/main_menu"))
                 .andExpect(request().sessionAttribute("userid", "user"))
@@ -134,7 +139,8 @@ public class SecurityConfigTest {
         session.setAttribute("userid", "user");
         session.setAttribute("password", "pw");
 
-        mockMvc.perform(post("/logout").session(session))
+        mockMvc.perform(post("/logout").session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }

@@ -101,7 +101,12 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <!-- Spring Security taglib 의존성 : csrf -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-taglibs</artifactId>
+            <version>6.1.2</version> 
+        </dependency>
     </dependencies>
 
     <build>

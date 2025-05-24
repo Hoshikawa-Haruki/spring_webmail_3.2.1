@@ -155,7 +155,7 @@ public class Pop3Agent {
         return result;
     }
 
-    private boolean connectToStore() {
+    boolean connectToStore() {
         boolean status = false;
         Properties props = System.getProperties();
         // https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/package-summary.html

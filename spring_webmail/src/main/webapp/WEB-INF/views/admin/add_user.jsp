@@ -5,6 +5,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="deu.cse.spring_webmail.control.CommandType" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!DOCTYPE html>
 
@@ -25,6 +26,7 @@
             추가로 등록할 사용자 ID와 암호를 입력해 주시기 바랍니다. <br> <br>
 
             <form name="AddUser" action="add_user.do" method="POST">
+                <sec:csrfInput />
                 <table border="0" align="left">
                     <tr>
                         <td>사용자 ID</td>

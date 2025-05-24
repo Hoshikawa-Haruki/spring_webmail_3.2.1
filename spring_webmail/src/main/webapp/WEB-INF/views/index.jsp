@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="deu.cse.spring_webmail.control.CommandType"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!DOCTYPE html>
 
@@ -27,6 +28,7 @@
                 contextPath를 포함시켜야 컨텍스트 경로(/webmail 등)에서도 잘 동작함.
             --%>
             <form method="POST" action="${pageContext.request.contextPath}/login.do">
+                <sec:csrfInput />  <!-- 자동으로 CSRF 토큰을 <input type="hidden"> 형태로 삽입-->
                 사용자: <input type="email" name="userid" size="20" autofocus> <br />
                 암&nbsp;&nbsp;&nbsp;호: <input type="password" name="passwd" size="20"> <br /> <br />
                 <input type="submit" value="로그인" name="B1">&nbsp;&nbsp;&nbsp;

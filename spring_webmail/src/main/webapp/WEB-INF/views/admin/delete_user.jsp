@@ -5,6 +5,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="deu.cse.spring_webmail.control.CommandType" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!DOCTYPE html>
 
@@ -37,10 +38,11 @@
                         UserAdminAgent agent = new UserAdminAgent("localhost", 4555, cwd);
             --%>
             <form name="DeleteUser" action="delete_user.do" method="POST">
+                <sec:csrfInput />
                 <%
                     for (String userId : (java.util.List<String>) request.getAttribute("userList")) {
                         out.print("<label><input type=checkbox name=\"selectedUsers\" "
-                            + "value=\"" + userId + "\" />");
+                                + "value=\"" + userId + "\" />");
                         out.println(userId + "</lable> <br>");
                     }
                 %>

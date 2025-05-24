@@ -7,6 +7,7 @@
 <%@tag description="JSTL" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%-- The list of normal or fragment attributes can be specified here: --%>
 <!--.tag를 사용하는 쪽에서 반드시 넘겨줘야 하는 속성들--> 
@@ -46,6 +47,7 @@
                 <td>
                     <%-- 삭제 버튼: 이메일 기준으로 삭제 --%>
                     <form action="${pageContext.request.contextPath}/jpa/delete_addr" method="post" style="display:inline;">
+                        <sec:csrfInput />
                         <input type="hidden" name="del_email" value="${row.email}" />
                         <button type="submit" onclick="return confirm('정말 삭제할까요?')">삭제</button>
                     </form>

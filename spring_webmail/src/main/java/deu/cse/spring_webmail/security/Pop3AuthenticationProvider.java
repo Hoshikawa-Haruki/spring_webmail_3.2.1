@@ -21,7 +21,7 @@ public class Pop3AuthenticationProvider implements AuthenticationProvider {
     private Pop3AgentFactory pop3AgentFactory;
 
     @Value("${james.host}")
-    private String host;
+    String host;
 
     @Override
     public Authentication authenticate(Authentication authentication) {

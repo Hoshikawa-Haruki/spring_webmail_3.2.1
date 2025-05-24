@@ -137,16 +137,18 @@ public class SystemController {
     public String loginFail() {
         return "login_fail";
     }
-
-    protected boolean isAdmin(String userid) {
-        boolean status = false;
-
-        if (userid.equals(this.ADMINISTRATOR)) {
-            status = true;
-        }
-
-        return status;
-    }
+    
+    //2025.05.24 lsh
+    //isAdmin() 메서드는 더 이상 SystemController에서 사용하지 않고, 대신 Spring Security의 authentication.getAuthorities() 로 역할(권한)을 판단
+//    protected boolean isAdmin(String userid) {
+//        boolean status = false;
+//
+//        if (userid.equals(this.ADMINISTRATOR)) {
+//            status = true;
+//        }
+//
+//        return status;
+//    }
 
     @GetMapping("/main_menu")
     public String mainMenu(Model model) {

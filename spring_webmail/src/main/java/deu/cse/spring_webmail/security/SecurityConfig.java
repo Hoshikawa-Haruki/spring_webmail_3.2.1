@@ -36,7 +36,9 @@ public class SecurityConfig {
                     session.setAttribute("userid", userid);
                     session.setAttribute("password", password);
                     session.setAttribute("host", "localhost");  // 필요시 설정값 가져와서 바꿔도 됨
-
+                    
+                    //2025.05.24 lsh
+                    //systemcontroller의 isadmin() 기능 이관
                     boolean isAdmin = authentication.getAuthorities().stream()
                             .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
                     response.sendRedirect(request.getContextPath() + (isAdmin ? "/admin_menu" : "/main_menu"));

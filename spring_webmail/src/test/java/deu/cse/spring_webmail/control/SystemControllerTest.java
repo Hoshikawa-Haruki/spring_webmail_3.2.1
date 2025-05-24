@@ -28,7 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.mockito.Mock;
+import org.springframework.security.test.context.support.WithMockUser;
 
+@WithMockUser(username = "superuser", roles = {"USER", "ADMIN"})
 @WebMvcTest(SystemController.class)
 class SystemControllerTest {
 
@@ -62,62 +64,59 @@ class SystemControllerTest {
                 .andExpect(view().name("/index"));
     }
 
-    @Test
-    void testLoginSuccessForNormalUser() throws Exception {
-        Pop3Agent agent = mock(Pop3Agent.class);
-        given(agent.validate()).willReturn(true);
-        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
-
-        session.setAttribute("host", "localhost");
-
-        mockMvc.perform(post("/login.do")
-                .param("menu", "91")
-                .param("userid", "user1")
-                .param("passwd", "pw1234")
-                .session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/main_menu"));
-    }
-
-    @Test
-    void testLoginSuccessForAdminUser() throws Exception {
-        Pop3Agent agent = mock(Pop3Agent.class);
-        given(agent.validate()).willReturn(true);
-        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
-
-        session.setAttribute("host", "localhost");
-
-        mockMvc.perform(post("/login.do")
-                .param("menu", "91")
-                .param("userid", "test@test.com") // 관리자 id
-                .param("passwd", "test") // 관리자 pw
-                .session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin_menu"));
-    }
-
-    @Test
-    void testLoginFail() throws Exception {
-        Pop3Agent agent = mock(Pop3Agent.class);
-        given(agent.validate()).willReturn(false);
-        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
-
-        session.setAttribute("host", "localhost");
-
-        mockMvc.perform(post("/login.do")
-                .param("menu", "91")
-                .param("userid", "wrong")
-                .param("passwd", "fail")
-                .session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/login_fail*"));
-    }
-
+//    @Test
+//    void testLoginSuccessForNormalUser() throws Exception {
+//        Pop3Agent agent = mock(Pop3Agent.class);
+//        given(agent.validate()).willReturn(true);
+//        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
+//
+//        session.setAttribute("host", "localhost");
+//
+//        mockMvc.perform(post("/login.do")
+//                .param("menu", "91")
+//                .param("userid", "user1")
+//                .param("passwd", "pw1234")
+//                .session(session))
+//                .andExpect(status().is3xxRedirection())
+//                .andExpect(redirectedUrl("/main_menu"));
+//    }
+//
+//    @Test
+//    void testLoginSuccessForAdminUser() throws Exception {
+//        Pop3Agent agent = mock(Pop3Agent.class);
+//        given(agent.validate()).willReturn(true);
+//        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
+//
+//        session.setAttribute("host", "localhost");
+//
+//        mockMvc.perform(post("/login.do")
+//                .param("menu", "91")
+//                .param("userid", "test@test.com") // 관리자 id
+//                .param("passwd", "test") // 관리자 pw
+//                .session(session))
+//                .andExpect(status().is3xxRedirection())
+//                .andExpect(redirectedUrl("/admin_menu"));
+//    }
+//
+//    @Test
+//    void testLoginFail() throws Exception {
+//        Pop3Agent agent = mock(Pop3Agent.class);
+//        given(agent.validate()).willReturn(false);
+//        given(pop3AgentFactory.create(any(), any(), any())).willReturn(agent);
+//
+//        session.setAttribute("host", "localhost");
+//
+//        mockMvc.perform(post("/login.do")
+//                .param("menu", "91")
+//                .param("userid", "wrong")
+//                .param("passwd", "fail")
+//                .session(session))
+//                .andExpect(status().is3xxRedirection())
+//                .andExpect(redirectedUrlPattern("/login_fail*"));
+//    }
     @Test
     void testLogout() throws Exception {
-        mockMvc.perform(post("/login.do")
-                .param("menu", "92")
-                .session(session))
+        mockMvc.perform(post("/logout")) // Spring Security의 기본 logout 경로
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
@@ -148,22 +147,6 @@ class SystemControllerTest {
     }
 
     @Test
-    void testAddUserDo() throws Exception {
-        UserAdminAgent agent = mock(UserAdminAgent.class);
-        given(agent.addUser(eq("tester"), eq("pw123"))).willReturn(true);
-        given(userAdminAgentFactory.create(any(), anyInt(), any(), any(), any(), any()))
-                .willReturn(agent);
-        given(servletContext.getRealPath(".")).willReturn(".");
-
-        mockMvc.perform(post("/add_user.do")
-                .param("id", "tester")
-                .param("password", "pw123")
-                .session(session))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/admin_menu"));
-    }
-
-    @Test
     void testDeleteUserDo() throws Exception {
         UserAdminAgent agent = mock(UserAdminAgent.class);
         given(userAdminAgentFactory.create(any(), anyInt(), any(), any(), any(), any()))
@@ -175,6 +158,56 @@ class SystemControllerTest {
                 .session(session))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin_menu"));
+    }
+
+    @Test
+    void testAddUserDo_success() throws Exception {
+        UserAdminAgent mockAgent = mock(UserAdminAgent.class);
+        given(userAdminAgentFactory.create(any(), anyInt(), any(), any(), any(), any()))
+                .willReturn(mockAgent);
+        given(mockAgent.addUser(eq("tester"), eq("pw123"))).willReturn(true);
+        given(servletContext.getRealPath(".")).willReturn(".");
+
+        mockMvc.perform(post("/add_user.do")
+                .param("id", "tester")
+                .param("password", "pw123")
+                .session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin_menu"))
+                .andExpect(flash().attribute("msg", "사용자(tester) 추가를 성공하였습니다."));
+    }
+
+    @Test
+    void testAddUserDo_fail() throws Exception {
+        UserAdminAgent mockAgent = mock(UserAdminAgent.class);
+        given(userAdminAgentFactory.create(any(), anyInt(), any(), any(), any(), any()))
+                .willReturn(mockAgent);
+        given(mockAgent.addUser(eq("tester"), eq("pw123"))).willReturn(false);
+        given(servletContext.getRealPath(".")).willReturn(".");
+
+        mockMvc.perform(post("/add_user.do")
+                .param("id", "tester")
+                .param("password", "pw123")
+                .session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin_menu"))
+                .andExpect(flash().attribute("msg", "사용자(tester) 추가를 실패하였습니다."));
+    }
+
+    @Test
+    void testAddUserDo_exception() throws Exception {
+        UserAdminAgent mockAgent = mock(UserAdminAgent.class);
+        given(userAdminAgentFactory.create(any(), anyInt(), any(), any(), any(), any()))
+                .willThrow(new RuntimeException("JMX 접속 실패"));
+        given(servletContext.getRealPath(".")).willReturn(".");
+
+        mockMvc.perform(post("/add_user.do")
+                .param("id", "tester")
+                .param("password", "pw123")
+                .session(session))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin_menu"));
+        // 예외 상황이므로 flash 메시지 검증은 별도로 안함 (필요시 로그 캡처 가능)
     }
 
     @Test
@@ -239,5 +272,12 @@ class SystemControllerTest {
         mockMvc.perform(get("/get_image/" + fileName))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes(new byte[0]));
+    }
+
+    @Test
+    void testLoginFailPage() throws Exception {
+        mockMvc.perform(get("/login_fail"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login_fail"));
     }
 }

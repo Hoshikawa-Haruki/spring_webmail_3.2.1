@@ -26,8 +26,7 @@
         <%@include file="header.jspf"%>
 
         <p id="login_fail">
-            <%= request.getParameter("userid")%>님, 로그인이 실패하였습니다.
-
+            <%= (String) session.getAttribute("loginErrorUserid") %>님, 로그인이 실패하였습니다.
             올바른 사용자 ID와 암호를 사용하여 로그인하시기 바랍니다.
 
             5초 뒤 자동으로 초기 화면으로 돌아갑니다.

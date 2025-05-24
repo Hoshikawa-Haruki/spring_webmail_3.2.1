@@ -20,13 +20,20 @@
 
 
         <div id="login_form">
-            <form method="POST" action="login.do?menu=<%= CommandType.LOGIN %>">
+            <%-- 
+                Spring Security에서는 login.do?menu=... 같은 파라미터는 필요 없음.
+                Spring Security가 /login.do로 POST 요청을 처리하도록 설정되어 있으므로
+                form의 action은 반드시 login.do로 설정. (GET 요청 아님!)
+                contextPath를 포함시켜야 컨텍스트 경로(/webmail 등)에서도 잘 동작함.
+            --%>
+            <form method="POST" action="${pageContext.request.contextPath}/login.do">
                 사용자: <input type="email" name="userid" size="20" autofocus> <br />
                 암&nbsp;&nbsp;&nbsp;호: <input type="password" name="passwd" size="20"> <br /> <br />
                 <input type="submit" value="로그인" name="B1">&nbsp;&nbsp;&nbsp;
                 <input type="reset" value="다시 입력" name="B2">
             </form>
         </div>
+
 
 
         <%@include file="footer.jspf"%>

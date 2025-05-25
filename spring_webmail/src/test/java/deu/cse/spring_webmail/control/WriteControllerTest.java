@@ -12,9 +12,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.*;
+import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+@WithMockUser(username = "tester", roles = "USER")
 @WebMvcTest(controllers = WriteController.class)
 class WriteControllerTest {
 
@@ -50,7 +53,8 @@ class WriteControllerTest {
                 .param("cc", "")
                 .param("subj", "Test Subject")
                 .param("body", "Test Body")
-                .session(session))
+                .session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/main_menu"));
     }
@@ -74,7 +78,8 @@ class WriteControllerTest {
                 .param("cc", "cc@example.com")
                 .param("subj", "Test Subject")
                 .param("body", "Test Body")
-                .session(session))
+                .session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/main_menu"))
                 .andExpect(flash().attribute("msg", "메일 전송이 성공했습니다."));

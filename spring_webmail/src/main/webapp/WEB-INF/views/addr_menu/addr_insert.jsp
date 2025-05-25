@@ -4,15 +4,10 @@
     Author     : Haruki
 --%>
 
-<%-- 
-    Document   : addr
-    Created on : 2025. 5. 5., 오전 3:32:38
-    Author     : Haruki
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib tagdir="/WEB-INF/tags" prefix="mytags" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <!DOCTYPE html>
 
@@ -59,6 +54,7 @@
         <div id="main">
             <h1>주소록 정보 입력</h1>
             <form name="addAddr" action="${pageContext.request.contextPath}/jpa/insert_addr" method="post">
+                <sec:csrfInput />
                 <table border="1" bgcolor="#CCFFCC" cellpadding="5">
                     <tr>
                         <td>이름</td>

@@ -37,7 +37,7 @@
     
     <!-- 루트 로그: 콘솔 + HTML 파일로 출력 -->
     <!--기존 : debug 레벨-->
-    <root level="info"> 
+    <root level="debug"> 
         <!--콘솔 출력 설정-->
         <appender-ref ref="consoleAppender" /> 
         <!--파일 출력 설정-->

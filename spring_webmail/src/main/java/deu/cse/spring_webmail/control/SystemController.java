@@ -4,6 +4,8 @@
  */
 package deu.cse.spring_webmail.control;
 
+import deu.cse.spring_webmail.factory.Pop3AgentFactory;
+import deu.cse.spring_webmail.factory.UserAdminAgentFactory;
 import deu.cse.spring_webmail.model.Pop3Agent;
 import deu.cse.spring_webmail.model.UserAdminAgent;
 import java.awt.image.BufferedImage;
@@ -76,71 +78,76 @@ public class SystemController {
         return "/index";
     }
 
-    @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
-    public String loginDo(@RequestParam Integer menu, RedirectAttributes redirectAttrs) {
-        String url = "";
-        log.debug("로그인 처리: menu = {}", menu);
-        switch (menu) {
-            case CommandType.LOGIN:
-                String host = (String) request.getSession().getAttribute("host");
-                String userid = request.getParameter(PARAM_USERID);
-                String password = request.getParameter("passwd");
-
-                // Check the login information is valid using <<model>>Pop3Agent.
-                // 기존
-                // Pop3Agent pop3Agent = new Pop3Agent(host, userid, password);
-                // 수정 2025-05-13
-                // 세션에서 가져오는 것이 아니고, 사용자 입력으로부터 직접 가져오는 값
-                Pop3Agent pop3Agent = pop3AgentFactory.create(host, userid, password);
-                boolean isLoginSuccess = pop3Agent.validate();
-
-                // Now call the correct page according to its validation result.
-                if (isLoginSuccess) {
-                    if (isAdmin(userid)) {
-                        // HttpSession 객체에 userid를 등록해 둔다.
-                        session.setAttribute(PARAM_USERID, userid);
-                        // response.sendRedirect("admin_menu.jsp");
-                        url = REDIRECT_ADMIN_MENU;
-                    } else {
-                        // HttpSession 객체에 userid와 password를 등록해 둔다.
-                        session.setAttribute(PARAM_USERID, userid);
-                        session.setAttribute("password", password);
-                        // response.sendRedirect("main_menu.jsp");
-                        url = "redirect:/main_menu";  // URL이 http://localhost:8080/webmail/main_menu 이와 같이 됨.
-                        // url = "/main_menu";  // URL이 http://localhost:8080/webmail/login.do?menu=91 이와 같이 되어 안 좋음
-                    }
-                } else {
-                    // RequestDispatcher view = request.getRequestDispatcher("login_fail.jsp");
-                    // view.forward(request, response);
-                    redirectAttrs.addAttribute(PARAM_USERID, userid); // 실패 화면에 사용될 사용자 ID 전달
-                    url = "redirect:/login_fail";
-                }
-                break;
-            case CommandType.LOGOUT:
-                session.invalidate();
-                url = "redirect:/";  // redirect: 반드시 넣어야만 컨텍스트 루트로 갈 수 있음
-                break;
-            default:
-                break;
-        }
-        return url;
-    }
-
+    /*
+    2025.05.24 SpringSecurity 구현 과정에서 삭제됨
+    -> security 패키지 내 클래스로 기능들 이관
+    @author Haruki
+     */
+//    @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
+//    public String loginDo(@RequestParam Integer menu, RedirectAttributes redirectAttrs) {
+//        String url = "";
+//        log.debug("로그인 처리: menu = {}", menu);
+//        switch (menu) {
+//            case CommandType.LOGIN:
+//                String host = (String) request.getSession().getAttribute("host");
+//                String userid = request.getParameter(PARAM_USERID);
+//                String password = request.getParameter("passwd");
+//
+//                // Check the login information is valid using <<model>>Pop3Agent.
+//                // 기존
+//                // Pop3Agent pop3Agent = new Pop3Agent(host, userid, password);
+//                // 수정 2025-05-13
+//                // 세션에서 가져오는 것이 아니고, 사용자 입력으로부터 직접 가져오는 값
+//                Pop3Agent pop3Agent = pop3AgentFactory.create(host, userid, password);
+//                boolean isLoginSuccess = pop3Agent.validate();
+//
+//                // Now call the correct page according to its validation result.
+//                if (isLoginSuccess) {
+//                    if (isAdmin(userid)) {
+//                        // HttpSession 객체에 userid를 등록해 둔다.
+//                        session.setAttribute(PARAM_USERID, userid);
+//                        // response.sendRedirect("admin_menu.jsp");
+//                        url = REDIRECT_ADMIN_MENU;
+//                    } else {
+//                        // HttpSession 객체에 userid와 password를 등록해 둔다.
+//                        session.setAttribute(PARAM_USERID, userid);
+//                        session.setAttribute("password", password);
+//                        // response.sendRedirect("main_menu.jsp");
+//                        url = "redirect:/main_menu";  // URL이 http://localhost:8080/webmail/main_menu 이와 같이 됨.
+//                        // url = "/main_menu";  // URL이 http://localhost:8080/webmail/login.do?menu=91 이와 같이 되어 안 좋음
+//                    }
+//                } else {
+//                    // RequestDispatcher view = request.getRequestDispatcher("login_fail.jsp");
+//                    // view.forward(request, response);
+//                    redirectAttrs.addAttribute(PARAM_USERID, userid); // 실패 화면에 사용될 사용자 ID 전달
+//                    url = "redirect:/login_fail";
+//                }
+//                break;
+//            case CommandType.LOGOUT:
+//                session.invalidate();
+//                url = "redirect:/";  // redirect: 반드시 넣어야만 컨텍스트 루트로 갈 수 있음
+//                break;
+//            default:
+//                break;
+//        }
+//        return url;
+//    }
     @GetMapping("/login_fail")
     public String loginFail() {
         return "login_fail";
     }
 
-    protected boolean isAdmin(String userid) {
-        boolean status = false;
-
-        if (userid.equals(this.ADMINISTRATOR)) {
-            status = true;
-        }
-
-        return status;
-    }
-
+    //2025.05.24 lsh
+    //isAdmin() 메서드는 더 이상 SystemController에서 사용하지 않고, 대신 Spring Security의 authentication.getAuthorities() 로 역할(권한)을 판단
+//    protected boolean isAdmin(String userid) {
+//        boolean status = false;
+//
+//        if (userid.equals(this.ADMINISTRATOR)) {
+//            status = true;
+//        }
+//
+//        return status;
+//    }
     @GetMapping("/main_menu")
     public String mainMenu(Model model) {
         // 기존
@@ -264,7 +271,7 @@ public class SystemController {
      * @param imageName
      * @return
      */
-    @RequestMapping(value = "/get_image/{imageName}")
+    @RequestMapping(value = "/get_image/{imageName}", method = RequestMethod.GET)
     @ResponseBody
     public byte[] getImage(@PathVariable String imageName) {
         try {

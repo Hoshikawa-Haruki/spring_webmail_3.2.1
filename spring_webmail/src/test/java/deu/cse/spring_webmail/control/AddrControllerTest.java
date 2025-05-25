@@ -12,7 +12,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+@WithMockUser(username = "user1", roles = "USER")
 @WebMvcTest(AddrController.class)
 class AddrControllerTest {
 
@@ -38,7 +41,8 @@ class AddrControllerTest {
                 .param("name", "홍길동")
                 .param("email", "test@test.com")
                 .param("phone", "010-1234-5678")
-                .session(session))
+                .session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/show_addr"))
                 .andExpect(flash().attribute("msg", "이미 등록된 이메일입니다."));
@@ -52,7 +56,8 @@ class AddrControllerTest {
                 .param("name", "홍길동")
                 .param("email", "test@test.com")
                 .param("phone", "010-1234-5678")
-                .session(session))
+                .session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/show_addr"))
                 .andExpect(flash().attribute("msg", "주소록에 추가되었습니다."));
@@ -64,7 +69,8 @@ class AddrControllerTest {
     void testdeleteAddr_success() throws Exception {
         mockMvc.perform(post("/jpa/delete_addr")
                 .param("del_email", "test@test.com")
-                .session(session))
+                .session(session)
+                .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/show_addr"))
                 .andExpect(flash().attribute("msg", "주소록에서 삭제되었습니다."));

@@ -11,12 +11,12 @@
 
 <%-- The list of normal or fragment attributes can be specified here: --%>
 <!--.tag를 사용하는 쪽에서 반드시 넘겨줘야 하는 속성들--> 
-<%@attribute name="user" required="true" %>
+<%--<%@attribute name="user" required="true" %>
 <%@attribute name="password" required="true" %>
 <%@attribute name="schema" required="true" %>
 <%@attribute name="table" required="true" %>
 
-<%-- any content can be specified here e.g.: --%>
+ any content can be specified here e.g.: 
 <!--DB 연결 설정-->
 <sql:setDataSource var="dataSrc"
                    url="jdbc:mysql://localhost:3306/${schema}?serverTimezone=Asia/Seoul"
@@ -26,7 +26,8 @@
 <sql:query var="rs" dataSource="${dataSrc}">
     SELECT email, name, phone FROM ${table} WHERE userid = ?
     <sql:param value="${sessionScope.userid}" />
-</sql:query>
+</sql:query>--%>
+<!--2025.05.25 jpa를 사용하여 더이상 사용하지 않음-->
 
 <table border="1">
     <thead>
@@ -39,7 +40,7 @@
         </tr>
     </thead>
     <tbody>
-        <c:forEach var="row" items="${rs.rows}">
+        <c:forEach var="row" items="${addrList}">
             <tr>
                 <td>${row.name}</td>
                 <td>${row.email}</td>

@@ -38,9 +38,10 @@ public class AddrbookService {
     public boolean isAlreadyRegistered(String userid, String email) {
         return addrbookRepo.existsByUseridAndEmail(userid, email);
     }
-//    public List<Addrbook> getUserEntries(String userid) {
-//        return addrbookRepo.findByUserId(userid);
-//    }
+    
+    public List<Addrbook> getAddrList(String userid) {
+        return addrbookRepo.findByUserid(userid);
+    }
 
     public List<Addrbook> getAll() {
         return addrbookRepo.findAll();

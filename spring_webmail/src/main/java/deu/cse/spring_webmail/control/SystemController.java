@@ -77,12 +77,12 @@ public class SystemController {
 
         return "/index";
     }
-    
+
     /*
     2025.05.24 SpringSecurity 구현 과정에서 삭제됨
     -> security 패키지 내 클래스로 기능들 이관
     @author Haruki
-    */
+     */
 //    @RequestMapping(value = "/login.do", method = {RequestMethod.GET, RequestMethod.POST})
 //    public String loginDo(@RequestParam Integer menu, RedirectAttributes redirectAttrs) {
 //        String url = "";
@@ -132,12 +132,11 @@ public class SystemController {
 //        }
 //        return url;
 //    }
-
     @GetMapping("/login_fail")
     public String loginFail() {
         return "login_fail";
     }
-    
+
     //2025.05.24 lsh
     //isAdmin() 메서드는 더 이상 SystemController에서 사용하지 않고, 대신 Spring Security의 authentication.getAuthorities() 로 역할(권한)을 판단
 //    protected boolean isAdmin(String userid) {
@@ -149,7 +148,6 @@ public class SystemController {
 //
 //        return status;
 //    }
-
     @GetMapping("/main_menu")
     public String mainMenu(Model model) {
         // 기존
@@ -273,7 +271,7 @@ public class SystemController {
      * @param imageName
      * @return
      */
-    @RequestMapping(value = "/get_image/{imageName}")
+    @RequestMapping(value = "/get_image/{imageName}", method = RequestMethod.GET)
     @ResponseBody
     public byte[] getImage(@PathVariable String imageName) {
         try {

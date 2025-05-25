@@ -14,6 +14,8 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String PARAM_USERID = "userid";
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -25,17 +27,17 @@ public class SecurityConfig {
                 .formLogin(form -> form
                 .loginPage("/") // index.jsp
                 .loginProcessingUrl("/login.do") // 이 URL로 POST가 오면 Spring Security가 자동 처리
-                .usernameParameter("userid")
+                .usernameParameter(PARAM_USERID)
                 .passwordParameter("passwd")
                 .successHandler((request, response, authentication) -> {
                     String userid = authentication.getName();
                     String password = request.getParameter("passwd");  // 직접 받아야 함
 
                     HttpSession session = request.getSession();
-                    session.setAttribute("userid", userid);
+                    session.setAttribute(PARAM_USERID, userid);
                     session.setAttribute("password", password);
                     session.setAttribute("host", "localhost");  // 필요시 설정값 가져와서 바꿔도 됨
-                    
+
                     //2025.05.24 lsh
                     //systemcontroller의 isadmin() 기능 이관
                     boolean isAdmin = authentication.getAuthorities().stream()
@@ -43,7 +45,7 @@ public class SecurityConfig {
                     response.sendRedirect(request.getContextPath() + (isAdmin ? "/admin_menu" : "/main_menu"));
                 })
                 .failureHandler((request, response, exception) -> { // 로그인 실패
-                    request.getSession().setAttribute("loginErrorUserid", request.getParameter("userid"));
+                    request.getSession().setAttribute("loginErrorUserid", request.getParameter(PARAM_USERID));
                     response.sendRedirect(request.getContextPath() + "/login_fail");
                 })
                 )

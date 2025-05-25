@@ -4,11 +4,14 @@
  */
 package deu.cse.spring_webmail.control;
 
+import deu.cse.spring_webmail.model.Addrbook;
 import deu.cse.spring_webmail.service.AddrbookService;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,8 +54,11 @@ public class AddrController {
     }
 
     @GetMapping("/show_addr")
-    public String showAddr() {
-        return "addr_menu/addr_book";
+    public String showAddr(HttpSession session, Model model) {
+        String userid = (String) session.getAttribute("userid");
+        List<Addrbook> addrList = addrbookService.getAddrList(userid);
+        model.addAttribute("addrList", addrList);  // 모델에 데이터 저장
+        return "addr_menu/addr_book";              
     }
 
     @GetMapping("/insert_addr")

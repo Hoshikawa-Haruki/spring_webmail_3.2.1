@@ -128,7 +128,7 @@ class MessageParserTest {
         // 실행 (재귀 getPart 호출 커버 가능)
         readEachPartMethod.invoke(parser, p);
 
-        // 따로 assertion 없지만 커버리지 상승에 도움됨
+        verify(multipart, atLeastOnce()).getBodyPart(anyInt());
     }
 
     @Test

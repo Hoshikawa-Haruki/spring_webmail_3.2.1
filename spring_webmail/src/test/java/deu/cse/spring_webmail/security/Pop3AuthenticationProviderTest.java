@@ -100,6 +100,8 @@ class Pop3AuthenticationProviderTest {
 
             @Override
             public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+                // 인증 객체는 외부에서 인증 상태를 변경하지 않도록 불변으로 설계되었기 때문에 이 메서드는 사용하지 않음.
+                throw new UnsupportedOperationException("setAuthenticated is not supported.");
             }
 
             @Override

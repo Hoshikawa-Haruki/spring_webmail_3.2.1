@@ -30,10 +30,14 @@
         <div id="main">
             <h1>주소록</h1>
             <hr/>
+            <%--
+            2025.05.25 jpa사용으로 인해 삭제
             <c:catch var="errorReason">
                 <mytags:addrbook user="jdbctester" password="12345"
                                  schema="webmail" table="addressbook"/>
             </c:catch>
+            --%>
+            <mytags:addrbook />
             ${empty errorReason ? "<noerror>" : errorReason} <!-- 오류 원인 출력 -->
             <br/>
             <a href="${pageContext.request.contextPath}/insert_addr">주소록 추가</a>

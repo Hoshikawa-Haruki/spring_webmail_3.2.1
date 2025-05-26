@@ -9,7 +9,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -42,18 +44,33 @@ public class SecurityConfig {
                     //systemcontroller의 isadmin() 기능 이관
                     boolean isAdmin = authentication.getAuthorities().stream()
                             .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+                    log.info("로그인 성공: 사용자 ID = {}, 권한 = {}\n", userid,
+                            isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
+
                     response.sendRedirect(request.getContextPath() + (isAdmin ? "/admin_menu" : "/main_menu"));
                 })
                 .failureHandler((request, response, exception) -> { // 로그인 실패
                     request.getSession().setAttribute("loginErrorUserid", request.getParameter(PARAM_USERID));
+                    log.warn("로그인 실패: 사용자 ID = {}\n", PARAM_USERID);
                     response.sendRedirect(request.getContextPath() + "/login_fail");
+                })
+                )
+                .exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    String deniedUserid = (String) request.getSession().getAttribute(PARAM_USERID);
+                    log.warn("❌ 인가 거부: userid = {}, 요청 URI = {}\n", deniedUserid, request.getRequestURI());
+                    response.sendRedirect(request.getContextPath() + "/access_denied");
                 })
                 )
                 .logout(logout -> logout
                 .logoutUrl("/logout") // 사용자가 href 요청 보내면 로그아웃 처리
                 .logoutSuccessHandler((request, response, authentication) -> {
+                    log.info("로그아웃 핸들러 진입 확인\n");
                     HttpSession session = request.getSession(false);
                     if (session != null) {
+                        String logoutId = (String) session.getAttribute(PARAM_USERID);
+                        log.info("로그아웃 요청됨: userid = {}\n", logoutId);
                         session.invalidate();  // 로그아웃 : 세션 무효화
                     }
                     response.sendRedirect(request.getContextPath() + "/");  // index.jsp로 이동

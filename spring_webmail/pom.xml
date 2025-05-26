@@ -139,6 +139,15 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/ServletInitializer*</exclude>
+                                <exclude>**/SpringWebmailApplication*</exclude>
+                                <exclude>**/model/MessageFormatter*</exclude>
+                                <exclude>**/model/Pop3Agent*</exclude>
+                                <exclude>**/control/ErrorController*</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

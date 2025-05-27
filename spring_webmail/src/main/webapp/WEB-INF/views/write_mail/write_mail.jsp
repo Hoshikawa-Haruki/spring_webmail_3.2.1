@@ -30,8 +30,9 @@
                 <sec:csrfInput />
                 <table>
                     <tr>
-                        <td> 수신 </td>
-                        <td> <input type="text" name="to" size="80"
+                        <th scope="row"> 수신 </th> <!-- Web:S5256 -->
+                        <td> 
+                            <input type="text" name="to" size="80"
                                     value="${not empty param.sender ? param.sender : (not empty param.email_to ? param.email_to : '')}"
                                     <!-- 기존 el표현식 -->
                                     <!--value="${!empty param['sender'] ? param['sender'] : ''}" -->

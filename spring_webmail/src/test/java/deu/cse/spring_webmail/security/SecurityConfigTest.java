@@ -144,4 +144,12 @@ public class SecurityConfigTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"));
     }
+
+    @WithMockUser(username = "user1", roles = {"USER"})
+    @Test
+    void testAccessDeniedForUser() throws Exception {
+        mockMvc.perform(get("/admin_menu"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/access_denied"));
+    }
 }

@@ -14,6 +14,8 @@ import jakarta.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.FileOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class MessageParser {
     @Getter @Setter private String sentDate;
     @Getter @Setter private String subject;
     @Getter @Setter private String body;
-    @Getter @Setter private String fileName;
+    @Getter @Setter private List<String> attachmentNames = new ArrayList<>();
     @Getter @Setter private String downloadTempDir = "C:/temp/download/";
 
     public MessageParser(Message message, String userid, HttpServletRequest request) {
@@ -129,7 +131,7 @@ public class MessageParser {
             dh.writeTo(fos);
             fos.flush();
         }
-        this.fileName = decodedFileName;
+        this.attachmentNames.add(decodedFileName);
     }
 
     /**
@@ -178,7 +180,10 @@ public class MessageParser {
             System.out.println("---------------------------------");
             System.out.println(body);
             System.out.println("---------------------------------");
-            System.out.println("첨부파일: " + fileName);
+            System.out.println("첨부파일:");
+            for (String name : attachmentNames) {
+                System.out.println("- " + name);
+            }
         }
     }
 

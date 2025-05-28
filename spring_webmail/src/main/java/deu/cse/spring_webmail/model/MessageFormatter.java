@@ -6,6 +6,7 @@ package deu.cse.spring_webmail.model;
 
 import jakarta.mail.Message;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageFormatter {
     @NonNull private String userid;  // 파일 임시 저장 디렉토리 생성에 필요
     private HttpServletRequest request = null;
-    
+
     // 250507 상수 추가
     private static final String HTML_BREAK = " <br>";
-    private static final String HTML_HR    = " <hr>";
-    
+    private static final String HTML_HR = " <hr>";
+
     // 220612 LJM - added to implement REPLY
     @Getter private String sender;
     @Getter private String subject;
     @Getter private String body;
-
 
     public String getMessageTable(Message[] messages) {
         StringBuilder buffer = new StringBuilder();
@@ -72,33 +72,37 @@ public class MessageFormatter {
         // MessageParser parser = new MessageParser(message, userid);
         MessageParser parser = new MessageParser(message, userid, request);
         parser.parse(true);
-        
+
         sender = parser.getFromAddress();
         subject = parser.getSubject();
         body = parser.getBody();
 
         buffer.append("보낸 사람: ").append(parser.getFromAddress()).append(HTML_BREAK)
-              .append("받은 사람: ").append(parser.getToAddress()).append(HTML_BREAK)
-              .append("Cc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ").append(parser.getCcAddress()).append(HTML_BREAK)
-              .append("보낸 날짜: ").append(parser.getSentDate()).append(HTML_BREAK)
-              .append("제 &nbsp;&nbsp;&nbsp;  목: ").append(parser.getSubject()).append(HTML_BREAK).append(HTML_HR)
-              .append(parser.getBody());
+                .append("받은 사람: ").append(parser.getToAddress()).append(HTML_BREAK)
+                .append("Cc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ").append(parser.getCcAddress()).append(HTML_BREAK)
+                .append("보낸 날짜: ").append(parser.getSentDate()).append(HTML_BREAK)
+                .append("제 &nbsp;&nbsp;&nbsp;  목: ").append(parser.getSubject()).append(HTML_BREAK).append(HTML_HR)
+                .append(parser.getBody());
 
-        String attachedFile = parser.getFileName();
-        if (attachedFile != null) {
+        List<String> attachedFiles = parser.getAttachmentNames();
+        if (!attachedFiles.isEmpty()) {
             buffer.append(HTML_BREAK).append(HTML_HR)
-                  .append("첨부파일: <a href=download?userid=")
-                  .append(this.userid)
-                  .append("&filename=")
-                  .append(attachedFile.replace(" ", "%20"))
-                  .append(" target=_top>")
-                  .append(attachedFile)
-                  .append("</a>").append(HTML_BREAK);
+                    .append("첨부파일:").append(HTML_BREAK);
+
+            for (String attachedFile : attachedFiles) {
+                buffer.append("<a href=download?userid=")
+                        .append(this.userid)
+                        .append("&filename=")
+                        .append(attachedFile.replace(" ", "%20"))
+                        .append(" target=_top>")
+                        .append(attachedFile)
+                        .append("</a>").append(HTML_BREAK);
+            }
         }
 
         return buffer.toString();
     }
-    
+
     public void setRequest(HttpServletRequest request) {
         this.request = request;
     }

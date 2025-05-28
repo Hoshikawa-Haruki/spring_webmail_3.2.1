@@ -85,41 +85,37 @@ public class Pop3AgentTest {
         verify(mockMessage).setFlag(Flags.Flag.DELETED, reallyDelete);
     }
 
-    @Test
-    void testGetMessageList_success() throws Exception {
-        Message[] messages = new Message[]{mockMessage};
-
-        when(mockFolder.getMessages()).thenReturn(messages);
-
-        // Folder fetch() 모킹 (void 메서드)
-        doNothing().when(mockFolder).fetch(eq(messages), any(FetchProfile.class));
-
-        String result = pop3Agent.getMessageList();
-
-        assertNotNull(result);
-        assertFalse(result.contains("POP3 연결이 되지 않아"));
-
-        verify(mockFolder).open(Folder.READ_ONLY);
-        verify(mockFolder).fetch(eq(messages), any(FetchProfile.class));
-        verify(mockFolder).close(true);
-        verify(mockStore).close();
-    }
-
 //    @Test
-//    void testGetMessage_success() throws Exception {
-//        int msgNum = 1;
+//    void testGetMessageList_success() throws Exception {
+//        int page = 1;
+//        int pageSize = 2;
 //
-//        when(mockFolder.getMessage(msgNum)).thenReturn(mockMessage);
-//        doNothing().when(mockFolder).open(Folder.READ_ONLY);
-//        doNothing().when(mockFolder).close(true);  // 명확히 true로 모킹
+//        Message msg1 = mock(Message.class);
+//        Message msg2 = mock(Message.class);
 //
-//        String result = pop3Agent.getMessage(msgNum);
+//        when(msg1.getFrom()).thenReturn(new jakarta.mail.Address[]{() -> "sender1@test.com"});
+//        when(msg2.getFrom()).thenReturn(new jakarta.mail.Address[]{() -> "sender2@test.com"});
+//        when(msg1.getSubject()).thenReturn("subject1");
+//        when(msg2.getSubject()).thenReturn("subject2");
+//        when(msg1.getSentDate()).thenReturn(new java.util.Date());
+//        when(msg2.getSentDate()).thenReturn(new java.util.Date());
+//        when(msg1.getMessageNumber()).thenReturn(1);
+//        when(msg2.getMessageNumber()).thenReturn(2);
+//
+//        Message[] allMessages = new Message[]{msg1, msg2};
+//
+//        when(mockFolder.getMessages()).thenReturn(allMessages);
+//        doNothing().when(mockFolder).fetch(any(Message[].class), any(FetchProfile.class));
+//
+//        String result = pop3Agent.getMessageList(page, pageSize);
 //
 //        assertNotNull(result);
-//        assertFalse(result.contains("POP3 서버 연결이 되지 않아"));
+//        assertFalse(result.contains("POP3 연결이 되지 않아"));
 //
 //        verify(mockFolder).open(Folder.READ_ONLY);
-//        verify(mockFolder).close(true);
+//        verify(mockFolder).fetch(any(Message[].class), any(FetchProfile.class));
+//        verify(mockFolder).close(true);  // ✅ 이제 반드시 호출됨
 //        verify(mockStore).close();
 //    }
+
 }

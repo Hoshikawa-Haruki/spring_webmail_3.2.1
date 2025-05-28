@@ -56,7 +56,8 @@ public class SecurityConfigTest {
     @BeforeEach
     void setup() {
         given(pop3AgentFactory.createFromSession(any())).willReturn(pop3Agent);
-        given(pop3Agent.getMessageList()).willReturn("Mocked Message List");
+        given(pop3Agent.getMessageList(1, 5)).willReturn("Mocked Message List");
+        given(pop3Agent.getTotalMessageCount()).willReturn(10);
 
         given(pop3AgentFactory.create(anyString(), anyString(), anyString())).willReturn(pop3Agent);
         given(pop3Agent.validate()).willReturn(true);  // 로그인 성공 시나리오

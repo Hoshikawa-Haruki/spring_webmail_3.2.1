@@ -124,13 +124,24 @@ class SystemControllerTest {
 //    }
     @Test
     void testMainMenu() throws Exception {
-        given(pop3AgentFactory.createFromSession(any())).willReturn(pop3Agent);
-        given(pop3Agent.getMessageList()).willReturn("Mocked Message List");
+        int page = 1;
+        int pageSize = 5;
+        int totalCount = 12;
+        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+        String mockedMessageList = "Mocked Message List";
 
-        mockMvc.perform(get("/main_menu").session(session))
+        given(pop3AgentFactory.createFromSession(any())).willReturn(pop3Agent);
+        given(pop3Agent.getMessageList(page, pageSize)).willReturn(mockedMessageList);
+        given(pop3Agent.getTotalMessageCount()).willReturn(totalCount);
+
+        mockMvc.perform(get("/main_menu").param("page", String.valueOf(page)).session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main_menu"))
-                .andExpect(model().attribute("messageList", "Mocked Message List"));
+                .andExpect(model().attribute("messageList", mockedMessageList))
+                .andExpect(model().attribute("totalCount", totalCount))
+                .andExpect(model().attribute("currentPage", page))
+                .andExpect(model().attribute("pageSize", pageSize))
+                .andExpect(model().attribute("totalPages", totalPages));
     }
 
     @Test

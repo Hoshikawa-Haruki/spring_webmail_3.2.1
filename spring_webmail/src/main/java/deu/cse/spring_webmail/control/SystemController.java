@@ -158,7 +158,7 @@ public class SystemController {
         int totalPages = (int) Math.ceil(totalCount / (double) pageSize);
 
         // 페이지 유효성 검사
-        if (page < 1 || page > totalPages) {
+        if (totalPages > 0 && (page < 1 || page > totalPages)) {
             attrs.addFlashAttribute("msg", "존재하지 않는 페이지입니다. 1페이지로 이동합니다.");
             return "redirect:/main_menu?page=1";
         }

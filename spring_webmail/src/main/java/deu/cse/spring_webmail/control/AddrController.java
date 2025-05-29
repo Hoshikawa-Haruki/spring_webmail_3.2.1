@@ -27,6 +27,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AddrController {
 
     private static final String REDIRECT_SHOW_ADDR = "redirect:/show_addr";
+    private static final String USER_ID = "userid";
+
     @Autowired
     private AddrbookService addrbookService;
 
@@ -35,7 +37,7 @@ public class AddrController {
             @RequestParam String email,
             @RequestParam String phone,
             HttpSession session, RedirectAttributes attrs) {
-        String userId = (String) session.getAttribute("userid");  // 세션에서 로그인 ID 가져오기
+        String userId = (String) session.getAttribute(USER_ID);  // 세션에서 로그인 ID 가져오기
         log.info("사용자 [{}] 주소록 추가 시도: name={}, email={}", userId, name, email);
         if (addrbookService.isAlreadyRegistered(userId, email)) {
             log.info("사용자 [{}] 주소록 중복 등록 시도: email={}", userId, email);
@@ -50,7 +52,7 @@ public class AddrController {
 
     @PostMapping("/jpa/delete_addr")
     public String deleteAddr(@RequestParam("del_email") String email, HttpSession session, RedirectAttributes attrs) {
-        String userId = (String) session.getAttribute("userid");
+        String userId = (String) session.getAttribute(USER_ID);
         log.info("사용자 [{}] 주소록 삭제 요청: email={}", userId, email);
         addrbookService.deleteEntry(userId, email);
         log.info("사용자 [{}] 주소록 삭제 완료: email={}", userId, email);
@@ -60,7 +62,7 @@ public class AddrController {
 
     @GetMapping("/show_addr")
     public String showAddr(HttpSession session, Model model) {
-        String userid = (String) session.getAttribute("userid");
+        String userid = (String) session.getAttribute(USER_ID);
         log.info("사용자 [{}] 주소록 조회 요청", userid);
         List<Addrbook> addrList = addrbookService.getAddrList(userid);
         model.addAttribute("addrList", addrList);  // 모델에 데이터 저장

@@ -44,13 +44,20 @@
             ${messageList}
         </div>
         <div style="margin-top: 20px; text-align: left; font-size: 18px; padding: 10px;">
-            페이지 :
-            <c:forEach begin="1" end="${totalPages}" var="i">
-                <a href="main_menu?page=${i}"
-                   style="margin: 0 5px; ${i == currentPage ? 'font-weight:bold; color:red;' : 'color:blue;'}">
-                    ${i}
-                </a>
-            </c:forEach>
+            <c:choose>
+                <c:when test="${totalPages == 0}">
+                    <span>&nbsp;&nbsp;&nbsp;현재 페이지 없음</span>
+                </c:when>
+                <c:otherwise>
+                    <span>&nbsp;&nbsp;&nbsp;페이지 :</span>
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <a href="${pageContext.request.contextPath}/main_menu?page=${i}"
+                           style="margin: 0 5px; ${i == currentPage ? 'font-weight:bold; color:red;' : 'color:blue;'}">
+                            ${i}
+                        </a>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <%@include file="footer.jspf"%>

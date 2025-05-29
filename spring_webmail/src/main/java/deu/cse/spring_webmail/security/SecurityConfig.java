@@ -1,5 +1,6 @@
 package deu.cse.spring_webmail.security;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +21,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
+        http.authorizeHttpRequests(auth -> auth // 인가 정책
+                // 내부 forward 요청도 보안 필터는 통과하되, 인가 검사에서는 허용
+                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                 .requestMatchers("/", "/index", "/login.do", "/login_fail", "/css/**", "/js/**", "/img_test", "/get_image/**").permitAll()
                 .requestMatchers("/main_menu").hasRole("USER")
                 .requestMatchers("/admin_menu", "/add_user", "/add_user.do", "/delete_user", "/delete_user.do").hasRole("ADMIN")
                 .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
+        );
+        http.formLogin(form -> form // 폼 로그인 필터 연결  
                 .loginPage("/") // index.jsp
                 .loginProcessingUrl("/login.do") // 이 URL로 POST가 오면 Spring Security가 자동 처리
                 .usernameParameter(PARAM_USERID)
@@ -56,15 +58,15 @@ public class SecurityConfig {
                     log.warn("로그인 실패: 사용자 ID = {}\n", PARAM_USERID);
                     response.sendRedirect(request.getContextPath() + "/login_fail");
                 })
-                )
-                .exceptionHandling(exception -> exception
+        );
+        http.exceptionHandling(exception -> exception
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     String deniedUserid = (String) request.getSession().getAttribute(PARAM_USERID);
                     log.warn("❌ 인가 거부: userid = {}, 요청 URI = {}\n", deniedUserid, request.getRequestURI());
                     response.sendRedirect(request.getContextPath() + "/access_denied");
                 })
-                )
-                .logout(logout -> logout
+        );
+        http.logout(logout -> logout
                 .logoutUrl("/logout") // 사용자가 href 요청 보내면 로그아웃 처리
                 .logoutSuccessHandler((request, response, authentication) -> {
                     log.info("로그아웃 핸들러 진입 확인\n");
@@ -76,7 +78,7 @@ public class SecurityConfig {
                     }
                     response.sendRedirect(request.getContextPath() + "/");  // index.jsp로 이동
                 })
-                );
+        );
 
         return http.build();
     }
@@ -90,11 +92,11 @@ public class SecurityConfig {
         return firewall;
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web
-                .httpFirewall(allowUrlEncodedDoubleSlashFirewall())
-                .ignoring()
-                .requestMatchers("/WEB-INF/**");  // 내부 forward 무시
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return web -> web
+//                .httpFirewall(allowUrlEncodedDoubleSlashFirewall())
+//                .ignoring()
+//                .requestMatchers("/WEB-INF/**");  // 내부 forward 무시
+//    }
 }

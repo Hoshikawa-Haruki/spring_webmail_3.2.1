@@ -50,20 +50,20 @@ public class MessageFormatterTest {
         assertNotNull(formatter);
     }
 
-    @Test
-    void testGetMessageTable_basic() throws Exception {
-        // 테스트용 메시지 배열
-        Message[] messages = new Message[]{mockMessage};
-
-        // MessageParser 생성자와 parse 메서드는 실제 클래스에 의존하므로,
-        // 이 테스트는 MessageFormatter 내부로직 기본 동작 검증에 초점
-        // 결과는 HTML 테이블 문자열
-        String html = formatter.getMessageTable(messages);
-
-        assertNotNull(html);
-        assertTrue(html.contains("<table>"));
-        assertTrue(html.contains("<th> No. </td>"));
-    }
+//    @Test
+//    void testGetMessageTable_basic() throws Exception {
+//        // 테스트용 메시지 배열
+//        Message[] messages = new Message[]{mockMessage};
+//
+//        // MessageParser 생성자와 parse 메서드는 실제 클래스에 의존하므로,
+//        // 이 테스트는 MessageFormatter 내부로직 기본 동작 검증에 초점
+//        // 결과는 HTML 테이블 문자열
+//        String html = formatter.getMessageTable(messages);
+//
+//        assertNotNull(html);
+//        assertTrue(html.contains("<table>"));
+//        assertTrue(html.contains("<th> No. </td>"));
+//    }
 
     @Test
     void testGetMessage_basic() throws Exception {

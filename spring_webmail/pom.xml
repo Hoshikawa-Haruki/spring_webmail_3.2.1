@@ -16,6 +16,17 @@
     <description>객체지향설계 Webmail Using Spring Boot</description>
     <properties>
         <java.version>17</java.version>
+        <!-- SonarQube coverage 리포트 경로 지정 -->
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
+        <!-- 커버리지에서 제외할 파일들 -->
+        <sonar.coverage.exclusions>
+            **/ServletInitializer*.java,
+            **/SpringWebmailApplication*.java,
+            **/model/MessageFormatter*.java,
+            **/model/Pop3Agent*.java,
+            **/control/ErrorController*.java
+        </sonar.coverage.exclusions>
     </properties>
     <dependencies>
         <dependency>

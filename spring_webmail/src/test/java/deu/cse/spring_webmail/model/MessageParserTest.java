@@ -87,7 +87,7 @@ class MessageParserTest {
         when(mockMessage.isMimeType("multipart/*")).thenReturn(true);
 
         assertTrue(parser.parse(true));
-        assertEquals("test.txt", parser.getFileName());
+        assertTrue(parser.getAttachmentNames().contains("test.txt"));
     }
 
     @Test

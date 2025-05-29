@@ -47,8 +47,10 @@ class WriteControllerTest {
         session.setAttribute("host", "localhost");
         session.setAttribute("userid", "tester@example.com");
 
-        mockMvc.perform(multipart("/write_mail.do") // ✅ multipart로 변경
-                .file(new MockMultipartFile("file1", "", "text/plain", new byte[0]))
+        MockMultipartFile emptyFile = new MockMultipartFile("upfiles", "", "text/plain", new byte[0]);
+
+        mockMvc.perform(multipart("/write_mail.do")
+                .file(emptyFile) // 빈 파일 전달
                 .param("to", "to@example.com")
                 .param("cc", "")
                 .param("subj", "Test Subject")
@@ -60,20 +62,18 @@ class WriteControllerTest {
     }
 
     @Test
-    void shouldSendMailWithAttachment() throws Exception {
+    void shouldSendMailWithMultipleAttachments() throws Exception {
         session.setAttribute("host", "localhost");
         session.setAttribute("userid", "tester@example.com");
 
         given(servletContext.getRealPath(any())).willReturn(System.getProperty("java.io.tmpdir"));
 
-        MockMultipartFile file = new MockMultipartFile(
-                "file1", "test.txt", "text/plain", "hello".getBytes()
-        );
+        MockMultipartFile file1 = new MockMultipartFile("upfiles", "file1.txt", "text/plain", "hello".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("upfiles", "file2.txt", "text/plain", "world".getBytes());
 
-        // 일반적으로 sendMessage()는 내부에 SMTP 서버 연결 실패 등이 있어야 false를 리턴함
-        // 지금은 완벽히 제어할 수 없으므로 파일만 보내고 성공 메시지만 체크
         mockMvc.perform(multipart("/write_mail.do")
-                .file(file)
+                .file(file1)
+                .file(file2)
                 .param("to", "to@example.com")
                 .param("cc", "cc@example.com")
                 .param("subj", "Test Subject")

@@ -149,17 +149,28 @@ public class SystemController {
 //        return status;
 //    }
     @GetMapping("/main_menu")
-    public String mainMenu(Model model) {
-        // 기존
-        // Pop3Agent pop3 = new Pop3Agent();
-        // pop3.setHost((String) session.getAttribute("host"));
-        // pop3.setUserid((String) session.getAttribute(PARAM_USERID));
-        // pop3.setPassword((String) session.getAttribute("password"));
-        // 수정 : 팩토리 메서드 적용
-        // 2025-05-13
+    // 2025.05.28 페이지네이션 구현
+    public String mainMenu(@RequestParam(defaultValue = "1") int page, Model model, RedirectAttributes attrs) {
         Pop3Agent pop3 = pop3AgentFactory.createFromSession(session);
-        String messageList = pop3.getMessageList();
+        int pageSize = 5;
+
+        int totalCount = pop3.getTotalMessageCount();
+        int totalPages = (int) Math.ceil(totalCount / (double) pageSize);
+
+        // 페이지 유효성 검사
+        if (page < 1 || page > totalPages) {
+            attrs.addFlashAttribute("msg", "존재하지 않는 페이지입니다. 1페이지로 이동합니다.");
+            return "redirect:/main_menu?page=1";
+        }
+
+        String messageList = pop3.getMessageList(page, pageSize);
+
         model.addAttribute("messageList", messageList);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalPages", totalPages);
+
         return "main_menu";
     }
 

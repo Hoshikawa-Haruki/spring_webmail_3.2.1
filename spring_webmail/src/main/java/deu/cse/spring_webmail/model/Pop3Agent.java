@@ -12,6 +12,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Store;
 import java.util.Properties;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,29 +25,45 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor        // 기본 생성자 생성
 public class Pop3Agent {
-    @Getter @Setter private String host;
-    @Getter @Setter private String userid;
-    @Getter @Setter private String password;
-    @Getter @Setter private Store store;
-    @Getter @Setter private String excveptionType;
-    @Getter @Setter private HttpServletRequest request;
-    
+
+    @Getter
+    @Setter
+    private String host;
+    @Getter
+    @Setter
+    private String userid;
+    @Getter
+    @Setter
+    private String password;
+    @Getter
+    @Setter
+    private Store store;
+    @Getter
+    @Setter
+    private String excveptionType;
+    @Getter
+    @Setter
+    private HttpServletRequest request;
+
     // 220612 LJM - added to implement REPLY
-    @Getter private String sender;
-    @Getter private String subject;
-    @Getter private String body;
-    
+    @Getter
+    private String sender;
+    @Getter
+    private String subject;
+    @Getter
+    private String body;
+
     //상수 선언
     private static final String INBOX_FOLDER = "INBOX";
-    private static final String PROP_TRUE  = "true";
+    private static final String PROP_TRUE = "true";
     private static final String PROP_FALSE = "false";
-    
+
     public Pop3Agent(String host, String userid, String password) {
         this.host = host;
         this.userid = userid;
         this.password = password;
     }
-    
+
     public boolean validate() {
         boolean status = false;
 
@@ -90,39 +107,110 @@ public class Pop3Agent {
     }
 
     /*
-     * 페이지 단위로 메일 목록을 보여주어야 함.
+     2025.05.28 페이지네이션 구현 lsh
+     메일 목록을 페이지 단위로 HTML 문자열로 반환
+     전체 메시지를 받아와서 start~end만 잘라서 HTML 조립
+     page: 현재 페이지 번호 (1부터 시작)
+     pageSize: 한 페이지에 보여줄 메일 수
      */
-    public String getMessageList() {
+    public String getMessageList(int page, int pageSize) {
         String result = "";
         Message[] messages = null;
 
-        if (!connectToStore()) {  // 3.1
+        if (!connectToStore()) {
             log.error("POP3 connection failed!");
             return "POP3 연결이 되지 않아 메일 목록을 볼 수 없습니다.";
         }
 
         try {
-            // 메일 폴더 열기
-            Folder folder = store.getFolder(INBOX_FOLDER);  // 3.2
-            folder.open(Folder.READ_ONLY);  // 3.3
+            Folder folder = store.getFolder(INBOX_FOLDER);
+            folder.open(Folder.READ_ONLY);
 
-            // 현재 수신한 메시지 모두 가져오기
-            messages = folder.getMessages();      // 3.4
+            messages = folder.getMessages();  // 오래된 메일이 앞쪽
+
+            int total = messages.length;
+
+            // 최신순으로 잘라오기 위해 뒤에서부터 잘라옴
+            int start = total - (page * pageSize);
+            int end = total - ((page - 1) * pageSize);
+            if (start < 0) {
+                start = 0;
+            }
+
+            Message[] pageMessages = Arrays.copyOfRange(messages, start, end);  // 최신순
+
+            // 최신이 위로 오게 순서 반전
+            Message[] reversed = new Message[pageMessages.length];
+            for (int i = 0; i < pageMessages.length; i++) {
+                reversed[i] = pageMessages[pageMessages.length - 1 - i];
+            }
+
             FetchProfile fp = new FetchProfile();
-            // From, To, Cc, Bcc, ReplyTo, Subject & Date
             fp.add(FetchProfile.Item.ENVELOPE);
-            folder.fetch(messages, fp);
+            folder.fetch(reversed, fp);
 
-            MessageFormatter formatter = new MessageFormatter(userid);  //3.5
-            result = formatter.getMessageTable(messages);   // 3.6
+            StringBuilder sb = new StringBuilder();
+            sb.append("<table border='1'>");
+            sb.append("<tr><th>No.</th><th>보낸 사람</th><th>제목</th><th>날짜</th><th>삭제</th></tr>");
 
-            folder.close(true);  // 3.7
-            store.close();       // 3.8
+            for (int i = 0; i < reversed.length; i++) {
+                Message msg = reversed[i];
+
+                // 메일의 실제 index 계산 → 가장 오래된 메일이 1번
+                int actualIndexInMessages = total - ((page - 1) * pageSize) - i - 1;
+                int number = actualIndexInMessages + 1;
+
+                String from = msg.getFrom()[0].toString();
+                String subject = msg.getSubject();
+                String sentDate = msg.getSentDate().toString();
+                int msgid = msg.getMessageNumber();
+
+                sb.append("<tr>");
+                sb.append("<td>").append(number).append("</td>");
+                sb.append("<td>").append(from).append("</td>");
+                sb.append("<td><a href=\"show_message?msgid=").append(msgid).append("\">")
+                        .append(subject).append("</a></td>");
+                sb.append("<td>").append(sentDate).append("</td>");
+                sb.append("<td><a href=\"delete_mail.do?msgid=")
+                        .append(msgid)
+                        .append("\" onclick=\"return confirm('정말로 삭제하시겠습니까?');\">삭제</a></td>");
+
+                sb.append("</tr>");
+            }
+
+            sb.append("</table>");
+
+            result = sb.toString();
+
+            folder.close(true);
+            store.close();
         } catch (Exception ex) {
             log.error("Pop3Agent.getMessageList() : exception = {}", ex.getMessage());
             result = "Pop3Agent.getMessageList() : exception = " + ex.getMessage();
         }
+
         return result;
+    }
+
+    /*
+    전체 받은 메일 개수를 반환 (페이지 수 계산에 필요)
+    2025.05.28 페이지네이션 구현 lsh
+     */
+    public int getTotalMessageCount() {
+        try {
+            if (!connectToStore()) {
+                return 0;
+            }
+            Folder folder = store.getFolder(INBOX_FOLDER);
+            folder.open(Folder.READ_ONLY);
+            int count = folder.getMessageCount();
+            folder.close();
+            store.close();
+            return count;
+        } catch (Exception ex) {
+            log.error("getTotalMessageCount() 예외: {}", ex.getMessage());
+            return 0;
+        }
     }
 
     public String getMessage(int n) {
@@ -178,5 +266,5 @@ public class Pop3Agent {
         }
         return status;
     }
-    
+
 }

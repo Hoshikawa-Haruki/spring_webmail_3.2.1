@@ -15,11 +15,12 @@
         </encoder>
     </appender>
 
-    <!-- HTML 로그 파일 : DEBUG 이상 모두 기록 -->
+    <!-- 2025.05.31 용량 때문에 INFO 이상으로 기록 -->
+    <!--HTML 로그 파일 : INFO 이상 모두 기록 -->-->
     <appender name="htmlFileAppender" class="ch.qos.logback.core.FileAppender">
         <file>logs/logdata.html</file> <!-- 로그파일 저장 위치 -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>INFO</level>
         </filter>
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="ch.qos.logback.classic.html.HTMLLayout" />

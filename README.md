@@ -37,7 +37,24 @@ james.bat status
 
 * **사용자 이름**: `jdbctester`
 * **비밀번호**: `12345`
+---
 
-해당 계정으로 접속 가능한 DB가 사전에 준비되어 있어야 합니다.
+### 💾 MySQL 8 Docker 컨테이너 실행 방법
+
+Spring Boot 프로젝트를 실행하기 전에 아래 명령어로 **MySQL 8 컨테이너**를 먼저 실행해야 합니다.
+
+```bash
+docker run -dt -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=12345 \
+  -e MYSQL_USER=jdbctester \
+  -e MYSQL_PASSWORD=12345 \
+  --name jsp_mysql8 \
+  mysql:8
+```
+
+### 📌 참고
+
+* MySQL 컨테이너가 실행 중이어야 Spring Boot 애플리케이션이 DB에 연결됩니다.
+* 비밀번호 등은 프로젝트 설정 파일(`application.properties`)에 맞춰 주세요.
 
 ---
